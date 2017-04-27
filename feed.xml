@@ -3,150 +3,116 @@
     <channel>
         <title></title>
         <description></description>
-        <link>https://testnet.romaniabitcoin.exchange/</link>
-        <atom:link href="https://testnet.romaniabitcoin.exchange/feed.xml" rel="self" type="application/rss+xml" />
+        <link>https://romaniabex.github.io/</link>
+        <atom:link href="https://romaniabex.github.io/feed.xml" rel="self" type="application/rss+xml" />
 
         
         <item>
-            <title>Faq What Is The Instant Deposit Mode</title>
-            <description>&lt;hr /&gt;
-&lt;p&gt;layout: post
- title:  “Care este modul de depunere instant?”
- date:   2014-11-07 00:19:00
- categories: ro faq
- —&lt;/p&gt;
-
-&lt;p&gt;Este o funcție a exchange-ului care permite utilizatorilor verificați și de încredere să poate tranzacționa, chiar dacă depozitarea FIAT nu a fost încă confirmată de broker. Contului utilizatorului este creditat fără a fi nevoit să aștepte pentru confirmare.&lt;/p&gt;
+            <title>Por que não tenho a chave privada da minha carteira na Foxbit?</title>
+            <description>&lt;p&gt;Nosso princípio é que as bitcoins depositadas na Foxbit estão lá para serem trocadas por Reais. Por isso, para garantir segurança e rapidez na negociação, a Foxbit mantém os depósitos, sejam em reais ou bitcoins.&lt;/p&gt;
 </description>
-            <pubDate>Fri, 07 Nov 2014 00:00:00 -0800</pubDate>
-            <link>https://testnet.romaniabitcoin.exchange/post/faq-what-is-the-instant-deposit-mode/</link>
-            <guid isPermaLink="true">https://testnet.romaniabitcoin.exchange/post/faq-what-is-the-instant-deposit-mode/</guid>
+            <pubDate>Sun, 17 May 2015 22:00:00 -0200</pubDate>
+            <link>https://romaniabex.github.io/post/faq-why-don't-I-have-a-private-key-for-my-exchange-wallet/</link>
+            <guid isPermaLink="true">https://romaniabex.github.io/post/faq-why-don't-I-have-a-private-key-for-my-exchange-wallet/</guid>
         </item>
         
         <item>
-            <title>Faq How To Withdraw Btc</title>
-            <description>&lt;hr /&gt;
-&lt;p&gt;layout:     post
- title:      “Cum pot retrage BTC?”
- date:       2014-11-07 00:11:00
- categories: ro faq
- —&lt;/p&gt;
+            <title>Por que os pseudnônimos são publicados no livro de ofertas?</title>
+            <description>&lt;p&gt;Há uma série de razões por trás disso. Vamos citar os mais importantes:&lt;/p&gt;
 
-&lt;p&gt;Când doriți să primiți Bitcoin, tot ce trebuie să faceți este să cereți o retragere din meniul principal. Va trebui să specificați sumă și să furnizați cheia publică(adresa) unde vrei Bitcoinii trimiși. Atenție la introducerea adresei, tranzacțiile Bitcoin sunt ireversibile.&lt;/p&gt;
+&lt;p&gt;1 - Isto evita manipulações de mercado, como frontrunning, PumpAndDump, e outras manipulações. Você pode tentar, mas as pessoas iriam pegá-lo imediatamente e deixariam de seguir os manipuladores. Essencialmente, os manipuladores do mercado perderiam o seu dinheiro, porque as pessoas seriam capazes de capturar a manipulação muito facilmente.&lt;/p&gt;
+
+&lt;p&gt;2 - Permite aos usuários auditarem as ordens de compra e venda da FoxBit, ajudando a provar a solvência dos bitcoins depositados nos endereços da empresa.&lt;/p&gt;
+
+&lt;p&gt;Sabemos que a maioria das empresas intermediadoras de Bitcoins não publicam estes dados, e é por isso que vemos muitas manipulações do mercado, e também alguns golpistas que só querem roubar bitcoins de seus clientes.&lt;/p&gt;
 </description>
-            <pubDate>Fri, 07 Nov 2014 00:00:00 -0800</pubDate>
-            <link>https://testnet.romaniabitcoin.exchange/post/faq-how-to-withdraw-BTC/</link>
-            <guid isPermaLink="true">https://testnet.romaniabitcoin.exchange/post/faq-how-to-withdraw-BTC/</guid>
+            <pubDate>Sun, 17 May 2015 22:00:00 -0200</pubDate>
+            <link>https://romaniabex.github.io/post/faq-why-are-the-user-names-shown-in-the-order-book/</link>
+            <guid isPermaLink="true">https://romaniabex.github.io/post/faq-why-are-the-user-names-shown-in-the-order-book/</guid>
         </item>
         
         <item>
-            <title>Faq How To Trade</title>
-            <description>&lt;hr /&gt;
-&lt;p&gt;layout:     post
- title:      “Cum tranzacționez?”
- date:       2014-11-07 00:14:00
- categories: ro faq
- —&lt;/p&gt;
-
-&lt;p&gt;Trebuie să alegi cantitatea de Bitcoini pe care vrei să o cumperi și prețul pe care ești dispus să-l plătești. Cursul este mereu determinat de prețul unui Bitcoin.&lt;/p&gt;
+            <title>Quem paga a taxa de saque?</title>
+            <description>&lt;p&gt;Tanto para saques em reais como em bitcoins, a taxa é paga por quem realiza a solicitação. A taxa em Reais é estabelecida pela FOXBIT (http://www.foxbit.com.br/taxas), já a taxa em Bitcoins (0.0001 bitcoin) é estabelecida pelo mineradores da rede bitcoin.&lt;/p&gt;
 </description>
-            <pubDate>Fri, 07 Nov 2014 00:00:00 -0800</pubDate>
-            <link>https://testnet.romaniabitcoin.exchange/post/faq-how-to-trade/</link>
-            <guid isPermaLink="true">https://testnet.romaniabitcoin.exchange/post/faq-how-to-trade/</guid>
+            <pubDate>Sun, 17 May 2015 22:00:00 -0200</pubDate>
+            <link>https://romaniabex.github.io/post/faq-who-pays-the-withdrawal-fee/</link>
+            <guid isPermaLink="true">https://romaniabex.github.io/post/faq-who-pays-the-withdrawal-fee/</guid>
         </item>
         
         <item>
-            <title>Faq Can I Keep Track Of All My Past Activity On The Platform</title>
-            <description>&lt;hr /&gt;
-&lt;p&gt;layout: post
- title:  “Pot urmări toate activitățile mele pe platformă?”
- date:   2014-11-07 00:26:00
- categories: ro faq&lt;/p&gt;
-
-&lt;p&gt;Da. În meniul principal accesați “Registru” unde există un istoric al tuturor tranzacțiilor. Puteți de asemenea urmării istoricul depunerilor sau retragerilor accesând în meniul principat “Depunerile mele”, “Retragerile mele”.&lt;/p&gt;
+            <title>Onde estão os dados bancários para depósitos?</title>
+            <description>&lt;p&gt;Para depositar fundos na FOXBIT, é necessário verificar sua conta e uma vez que esse processo já foi realizado, você poderá depositar valores. Todas os dados bancários necessários aparecerão em uma janela quando for solicitada uma ordem de depósito.&lt;/p&gt;
 </description>
-            <pubDate>Fri, 07 Nov 2014 00:00:00 -0800</pubDate>
-            <link>https://testnet.romaniabitcoin.exchange/post/faq-can-I-keep-track-of-all-my-past-activity-on-the-platform/</link>
-            <guid isPermaLink="true">https://testnet.romaniabitcoin.exchange/post/faq-can-I-keep-track-of-all-my-past-activity-on-the-platform/</guid>
+            <pubDate>Sun, 17 May 2015 22:00:00 -0200</pubDate>
+            <link>https://romaniabex.github.io/post/faq-where-is-your-bank-account-information/</link>
+            <guid isPermaLink="true">https://romaniabex.github.io/post/faq-where-is-your-bank-account-information/</guid>
         </item>
         
         <item>
-            <title>Faq Can I Audit The Balance Of The Wallets Of The Exchange</title>
-            <description>&lt;hr /&gt;
-&lt;p&gt;layout: post
- title:  “Pot verifica soldul portofelelor din exchange?”
- date:   2014-11-07 00:25:00
- categories: ro faq
-—&lt;/p&gt;
+            <title>Qual é a relação entre a Bolsa de Bitcoins e a Blinktrade?</title>
+            <description>&lt;p&gt;Blinktrade é o provedor de tecnologia da plataforma. Nós contratamos os serviços da Blinktrade, e esta oferece os serviços de TI.&lt;/p&gt;
 
-&lt;p&gt;Da. Cheile publice pentru portofelele calde și reci sunt disponibile pentru verificare. Tot ce trebuie să faceți este să intrați pe blockchain.info și să înserați adresa pe care doriți să o verificați.&lt;/p&gt;
+&lt;p&gt;A operadora de fato somos nós, que realizamos as operações diárias, ou seja, processa depósitos e saques, verifica a identidade dos clientes e permite que sejam realizadas transações seguras.&lt;/p&gt;
 </description>
-            <pubDate>Fri, 07 Nov 2014 00:00:00 -0800</pubDate>
-            <link>https://testnet.romaniabitcoin.exchange/post/faq-can-I-audit-the-balance-of-the-wallets-of-the-exchange/</link>
-            <guid isPermaLink="true">https://testnet.romaniabitcoin.exchange/post/faq-can-I-audit-the-balance-of-the-wallets-of-the-exchange/</guid>
+            <pubDate>Sun, 17 May 2015 22:00:00 -0200</pubDate>
+            <link>https://romaniabex.github.io/post/faq-what-is-the-relationship-between-the-exchange-and-blinktrade/</link>
+            <guid isPermaLink="true">https://romaniabex.github.io/post/faq-what-is-the-relationship-between-the-exchange-and-blinktrade/</guid>
         </item>
         
         <item>
-            <title>De ce nu am o cheie privată a portofelului meu din exchange?</title>
-            <description>&lt;p&gt;Principiul nostru este că Bitcoinii sunt depozitați în exchange pentru a fi schimbați în monedă locală. În consecință pentru a garanta siguranța și viteza tranzacționării, operatorul exchange-ului are posesia depozitărilor fie în Fiat sau BTC.&lt;/p&gt;
+            <title>Como funciona o “depósito instantâneo”?</title>
+            <description>&lt;p&gt;É uma funcionalidade exclusiva das bolsas que utilizam tecnologia Blinktrade que permite aos usuários confiáveis e verificados que recebam os bitcoins assim que a transação for publicada na rede, independentemente do número de confirmações.&lt;/p&gt;
+
+&lt;p&gt;Essa funcionalidade está disponível apenas para usuários verificados, além de ter um limite máximo de 9,99 Bitcoins por depósito.&lt;/p&gt;
+
+&lt;p&gt;Lembrando que enquanto sua transação não for confirmada, você não poderá sacar bitcoins ou reais.&lt;/p&gt;
 </description>
-            <pubDate>Thu, 06 Nov 2014 16:13:00 -0800</pubDate>
-            <link>https://testnet.romaniabitcoin.exchange/post/faq-why-don't-I-have-a-private-key-for-my-exchange-wallet/</link>
-            <guid isPermaLink="true">https://testnet.romaniabitcoin.exchange/post/faq-why-don't-I-have-a-private-key-for-my-exchange-wallet/</guid>
+            <pubDate>Sun, 17 May 2015 22:00:00 -0200</pubDate>
+            <link>https://romaniabex.github.io/post/faq-what-is-the-instant-deposit-mode/</link>
+            <guid isPermaLink="true">https://romaniabex.github.io/post/faq-what-is-the-instant-deposit-mode/</guid>
         </item>
         
         <item>
-            <title>Sunt Bitcoinii mei în siguranță?</title>
-            <description>&lt;p&gt;Scopul nostru principal este de a oferii trader-ilor un mediu sigur în care să interacționeze. Bitcoinii sunt stocani într-un portofel rece cu semnături multiple (multisignature cold storage wallet). Chiar dacă server-ul sau exchange-ul ar fi compromise Bitcoinii nu pot ajunge la băieții răi.&lt;/p&gt;
-
-&lt;p&gt;Portofelul cu semnături multiple(multisignature) necesită 2 din 3 semnături pentru a muta Bitcoinii. Operatorul exchange-ului deține una din cele 3 chei. Celelalte două sunt deținute de BlinkTrade și un mediator, care va lua parte la proces, în cazul în care ar exista o dispută între operator și BlinkTrade.&lt;/p&gt;
-
-&lt;p&gt;Chiar dacă un hack-er ar compromite serverele exchange-ului, ar trebui să compromită și serverele BlinkTrade pentru a-și putea însuși Bitcoinii. Șansele ca așa ceva să se întâmple sunt infime.&lt;/p&gt;
-
-&lt;p&gt;De ficare dată când Bitcoini sunt mutați din portofelul cu semnături multiple pe un portofel cald(care este conectat la internet pentru a procesa retrageri rapid) BlinkTrade verifică sistemul și efectuează o dovadă de solvabilitate a bitcoinilor. 
- Cu alte cuvinte de fiecare data când Bitcoinii sunt mutați din portofelul cu semnături multiple rece(neconectat la internet) în portofelul cald(conectat la internet), efectuăm o verificare completă a sistemului.&lt;/p&gt;
-
-&lt;p&gt;Portofelele calde sunt stocate pe serverele blockchain.info și păstrăm doar cantități mici de bitcoin pentru a efectuă operațiuni de zi cu zi. 
-Mai mult, toate măsurile de siguranță ale portofelelor calde sunt întreținute de blockchain.info &lt;/p&gt;
-
-&lt;p&gt;Nici un exchange din lume nu este 100% sigur. Cu toate măsurile noastre de siguranță nu vrem să creăm o comoară de bitcoin, care ar provoca hack-eri să încerce să compromită exchange-ul.&lt;/p&gt;
-
-&lt;p&gt;Încurajăm toți utilizatori să își depoziteze Bitcoinii doar când au de gând să îi schimbe, și să nu folosească exchange-ul că o bancă. Cea mai sigură metodă este să va țineți Bitcoini în portofelul personal până când aveți de gând să îi schimbați.&lt;/p&gt;
+            <title>O que é Bitcoin?</title>
+            <description>&lt;p&gt;Bitcoin é uma rede P2P (rede de computadores que permite o compartilhamento de serviços e dados sem a necessidade de um servidor central) de código aberto criada em 2009 pelo autor de pseudônimo Satoshi Nakamoto. O protocolo desta rede permite ao usuário enviar, armazenar e receber valores com um baixíssimo custo e de forma muito rápida. O uso de Bitcoin evita a necessidade de autoridades financeiras centralizadoras (governos, bancos centrais, etc) e até de empresas operadoras (bancos privados, cartões de créditos, sites intermediadores de pagamento).&lt;/p&gt;
 </description>
-            <pubDate>Thu, 06 Nov 2014 16:12:00 -0800</pubDate>
-            <link>https://testnet.romaniabitcoin.exchange/post/faq-is-your-bitcoin-safe/</link>
-            <guid isPermaLink="true">https://testnet.romaniabitcoin.exchange/post/faq-is-your-bitcoin-safe/</guid>
+            <pubDate>Sun, 17 May 2015 22:00:00 -0200</pubDate>
+            <link>https://romaniabex.github.io/post/faq-what-is-bitcoin/</link>
+            <guid isPermaLink="true">https://romaniabex.github.io/post/faq-what-is-bitcoin/</guid>
         </item>
         
         <item>
-            <title>Cum depozitez bani(fiat) în contul meu?</title>
-            <description>&lt;p&gt;În meniul principal, apăsați pe “Depozit monedă locală” și va apărea o fereastră nouă. You will have to specify the amount of FIAT you want to deposit in order to buy bitcoins. Va trebui să specificați cantitatea de FIAT pe care doriți să o depozitați, pentru a cumpără Bitcoin. Țineți cont că există taxă de depozitare. Pentru o depozitare de 800 lei cu o taxa de 1.5%, veți avea 788 lei creditați către contul dumneavoastră.&lt;/p&gt;
+            <title>O que é uma bolsa de bitcoins?</title>
+            <description>&lt;p&gt;É simplesmente uma plataforma (um website), onde pessoas interessadas em comprar bitcoins encontram vendedores interessados em vender bitcoins e vice-e-versa.&lt;/p&gt;
 </description>
-            <pubDate>Thu, 06 Nov 2014 16:08:00 -0800</pubDate>
-            <link>https://testnet.romaniabitcoin.exchange/post/faq-how-do-I-deposit-local-currency-into-my-account/</link>
-            <guid isPermaLink="true">https://testnet.romaniabitcoin.exchange/post/faq-how-do-I-deposit-local-currency-into-my-account/</guid>
+            <pubDate>Sun, 17 May 2015 22:00:00 -0200</pubDate>
+            <link>https://romaniabex.github.io/post/faq-what-is-a-bitcoin-exchange/</link>
+            <guid isPermaLink="true">https://romaniabex.github.io/post/faq-what-is-a-bitcoin-exchange/</guid>
         </item>
         
         <item>
-            <title>Cum pot devenii trader?</title>
-            <description>&lt;p&gt;Deschiderea unui cont de tranzactionare la Exchange este ușor, rapid și gratuit. Faceți clic pe “Înregistrează-te”, completați formularul și conectați-vă.  După ce vă conectați, operatorul Exchange-ul vă va cere numele, adresa și documente. După ce documentele au fost verificate de operator, veți putea cumpără/vinde Bitcoin.&lt;/p&gt;
+            <title>O que são esses nomes no livro de ofertas?</title>
+            <description>&lt;p&gt;Nós atribuímos um nome aleatório para cada conta.&lt;/p&gt;
+
+&lt;p&gt;Assim, em vez de publicar o nome real do usuário, estamos publicando um nome aleatório.&lt;/p&gt;
+
+&lt;p&gt;Isso protege a privacidade do usuário, desde que ele não revele a ligação entre seu nome verdadeiro e o nome gerado aleatoriamente. É de responsabilidade do usuário proteger sua própria privacidade.&lt;/p&gt;
 </description>
-            <pubDate>Thu, 06 Nov 2014 16:07:00 -0800</pubDate>
-            <link>https://testnet.romaniabitcoin.exchange/post/faq-how-do-I-become-a-trader/</link>
-            <guid isPermaLink="true">https://testnet.romaniabitcoin.exchange/post/faq-how-do-I-become-a-trader/</guid>
+            <pubDate>Sun, 17 May 2015 22:00:00 -0200</pubDate>
+            <link>https://romaniabex.github.io/post/faq-o-que-sao-esses-nomes-livro-de-ofertas/</link>
+            <guid isPermaLink="true">https://romaniabex.github.io/post/faq-o-que-sao-esses-nomes-livro-de-ofertas/</guid>
         </item>
         
         <item>
-            <title>Exchange-ul cumpără/vinde Bitcoin direct?</title>
-            <description>&lt;p&gt;Nu. Noi oferim un serviciu. Gândiți-va la exchange ca eBay, noi doar oferim un serviciu unde puteți găsii vânzători sau cumpărători.&lt;/p&gt;
+            <title>O que é autenticação em 2 passos?</title>
+            <description>&lt;p&gt;A autenticação em 2 passos, também conhecida como 2factor e autenticação em 2 fatores, é um recurso que acrescenta uma camada adicional de segurança para o processo de login da conta, exigindo que você forneça dois passos para autenticação. O primeiro passo é a sua senha e o segundo é um código gerado a cada 30 segundos por um aplicativo para smartphone chamado Authy, mas também pode ser utilizado o Google Authenticator.&lt;/p&gt;
 
-&lt;p&gt;Tot ceea ce facem este să oferim un mediu sigur și simplu pentru a tranzacționa cu alți utilizatori.&lt;/p&gt;
-
-&lt;p&gt;Noi garantăm că cumpărătorul primește Bitcoini și vânzătorul banii, la prețul stabilit.&lt;/p&gt;
+&lt;p&gt;Acesse https://authy.com e faça o download para aumentar a segurança do acesso a sua conta.&lt;/p&gt;
 </description>
-            <pubDate>Fri, 31 Oct 2014 17:04:00 -0700</pubDate>
-            <link>https://testnet.romaniabitcoin.exchange/post/faq-does-the-exchange-buy-or-sell-bitcoins-directly/</link>
-            <guid isPermaLink="true">https://testnet.romaniabitcoin.exchange/post/faq-does-the-exchange-buy-or-sell-bitcoins-directly/</guid>
+            <pubDate>Sun, 17 May 2015 22:00:00 -0200</pubDate>
+            <link>https://romaniabex.github.io/post/faq-o-que-e-autenticacao-2-passos/</link>
+            <guid isPermaLink="true">https://romaniabex.github.io/post/faq-o-que-e-autenticacao-2-passos/</guid>
         </item>
         
 

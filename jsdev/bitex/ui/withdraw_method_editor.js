@@ -48,6 +48,8 @@ bitex.ui.WithdrawMethodEditor.prototype.setModel = function(obj) {
   obj['percent_fee'] = fmt.format(obj['percent_fee'] );
   obj['fixed_fee'] = fmt.format( obj['fixed_fee']/1e8 );
 
+  obj['percent_cost'] = fmt.format(obj['percent_cost'] );
+  obj['fixed_cost'] = fmt.format( obj['fixed_cost']/1e8 );
 
   if (goog.isDefAndNotNull(obj['limits'])) {
     goog.object.forEach(obj['limits'], function(limit, verification_level ) {
@@ -132,11 +134,13 @@ bitex.ui.WithdrawMethodEditor.prototype.getWithdrawMethodJSON = function() {
   var fmt = new goog.i18n.NumberFormat( goog.i18n.NumberFormat.Format.DECIMAL);
 
   var result = {};
-  result['method']      = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_name')) );
-  result['description'] = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_description')) );
-  result['disclaimer']  = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_placeholder')) );
-  result['percent_fee'] = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_percent_fee')) );
-  result['fixed_fee']   = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_fixed_fee')) );
+  result['method']       = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_name')) );
+  result['description']  = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_description')) );
+  result['disclaimer']   = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_placeholder')) );
+  result['percent_fee']  = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_percent_fee')) );
+  result['fixed_fee']    = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_fixed_fee')) );
+  result['percent_cost'] = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_percent_cost')) );
+  result['fixed_cost']   = goog.dom.forms.getValue( goog.dom.getElement(this.makeId('form_fixed_cost')) );
 
   var pos = [0];
   var tmp = result['percent_fee'];
@@ -152,6 +156,24 @@ bitex.ui.WithdrawMethodEditor.prototype.getWithdrawMethodJSON = function() {
     result['fixed_fee'] = 0;
   }
   result['fixed_fee'] =  result['fixed_fee'] * 1e8;
+
+
+  pos = [0];
+  var tmp = result['percent_cost'];
+  result['percent_cost'] = fmt.parse(tmp , pos );
+  if (pos[0] != tmp.length || isNaN(result['percent_cost']) || result['percent_cost'] <= 0 ) {
+    result['percent_cost'] = 0;
+  }
+
+  pos = [0];
+  tmp = result['fixed_cost'];
+  result['fixed_cost'] = fmt.parse(tmp , pos );
+  if (pos[0] != tmp.length || isNaN(result['fixed_cost']) || result['fixed_cost'] <= 0 ) {
+    result['fixed_cost'] = 0;
+  }
+  result['fixed_cost'] =  result['fixed_cost'] * 1e8;
+
+
 
   var fields_limits_tbody_element = goog.dom.getNextElementSibling(
       goog.dom.getFirstElementChild(
@@ -205,6 +227,7 @@ bitex.ui.WithdrawMethodEditor.prototype.getWithdrawMethodJSON = function() {
   var row_number = 0;
   while ( goog.isDefAndNotNull(field_row) ) {
     var field_record = {
+      'required'   : goog.dom.forms.getValue( goog.dom.getElementByClass('withdraw-method-editor-field-required', field_row)  ),
       'side'       : goog.dom.forms.getValue( goog.dom.getElementByClass('withdraw-method-editor-field-side', field_row)  ),
       'name'       : goog.dom.forms.getValue( goog.dom.getElementByClass('withdraw-method-editor-field-name', field_row) ),
       'label'      : goog.dom.forms.getValue( goog.dom.getElementByClass('withdraw-method-editor-field-label', field_row) ),
@@ -250,7 +273,7 @@ bitex.ui.WithdrawMethodEditor.prototype.onAddField_ = function(e) {
   wrapper.innerHTML = bitex.ui.withdraw_method_editor.templates.WithdrawMethodFieldLineEditor({
     id: this.makeId('form'),
     idx: '',
-    data: { 'side': 'client', 'name':'', 'validator':'', 'label':'', 'placeholder':'', 'type':'', 'value':'' }
+    data: { 'side': 'client', 'name':'', 'validator':'', 'label':'', 'placeholder':'', 'type':'', 'value':'', 'required':false }
   });
   goog.dom.appendChild( table_tbody_el, wrapper.firstChild );
 };

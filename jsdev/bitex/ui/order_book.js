@@ -1,4 +1,5 @@
 goog.provide('bitex.ui.OrderBook');
+goog.provide('bitex.ui.OrderBookDrag');
 goog.provide('bitex.ui.OrderBook.Side');
 goog.provide('bitex.ui.OrderBook.EventType');
 goog.provide('bitex.ui.OrderBookEvent');
@@ -10,14 +11,40 @@ goog.require('goog.dom.classes');
 goog.require('goog.object');
 
 goog.require('goog.Timer');
-goog.require('bitex.model.OrderBookCurrencyModel');
+goog.provide('bitex.ui.OrderBookCurrencyModel');
+
+goog.require('bitex.primitives.Price');
+
+goog.require('goog.style');
+goog.require('goog.fx.DragDrop');
+goog.require('goog.fx.DragDropGroup');
+
+/**
+ * @constructor
+ */
+bitex.ui.OrderBookDrag =  function() {
+  goog.fx.DragDropGroup.call(this);
+};
+goog.inherits(bitex.ui.OrderBookDrag, goog.fx.DragDropGroup);
+
+bitex.ui.OrderBookDrag.prototype.createDragElement = function(element) {
+  return goog.soy.renderAsElement(bitex.ui.OrderBook.templates.OrderBookDragOrder, {
+    price: parseInt(element.getAttribute('data-price-value'), 10 )
+  });
+};
+
+
+/**
+ * @typedef {{ code:String, format:String, description:String, sign:String, pip:number, is_crypto:Boolean  }}
+ */
+bitex.ui.OrderBookCurrencyModel;
 
 
 /**
  * @param {string} username
  * @param {bitex.ui.OrderBook.Side} side
- * @param {bitex.model.OrderBookCurrencyModel} qtyCurrencyDef
- * @param {bitex.model.OrderBookCurrencyModel} priceCurrencyDef
+ * @param {bitex.ui.OrderBookCurrencyModel} qtyCurrencyDef
+ * @param {bitex.ui.OrderBookCurrencyModel} priceCurrencyDef
  * @param {number} opt_blinkDelay. Defaults to 1200 milliseconds
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  *
@@ -38,6 +65,8 @@ bitex.ui.OrderBook = function ( username, side, qtyCurrencyDef, priceCurrencyDef
   this.show_cum_qty_ = false;
   this.show_fees_ = false;
   this.fee_ = 1;
+
+  this.drag_drop_group_ = new bitex.ui.OrderBookDrag();
 };
 goog.inherits( bitex.ui.OrderBook, goog.ui.Component);
 
@@ -55,6 +84,7 @@ bitex.ui.OrderBook.Side = {
  */
 bitex.ui.OrderBook.EventType = {
   CANCEL: 'cancel',
+  CANCEL_REPLACE: 'cancel_replace',
   PRICE_CLICK: 'price_click',
   QTY_CLICK: 'qty_click'
 };
@@ -74,13 +104,13 @@ bitex.ui.OrderBook.prototype.username_;
 bitex.ui.OrderBook.prototype.side_;
 
 /**
- * @type {bitex.model.OrderBookCurrencyModel}
+ * @type {bitex.ui.OrderBookCurrencyModel}
  * @private
  */
 bitex.ui.OrderBook.prototype.qtyCurrencyDef_;
 
 /**
- * @type {bitex.model.OrderBookCurrencyModel}
+ * @type {bitex.ui.OrderBookCurrencyModel}
  * @private
  */
 bitex.ui.OrderBook.prototype.priceCurrencyDef_;
@@ -116,6 +146,11 @@ bitex.ui.OrderBook.prototype.show_fees_;
 bitex.ui.OrderBook.prototype.fee_;
 
 
+/**
+ * @type {bitex.ui.OrderBookDrag}
+ * @private
+ */
+bitex.ui.OrderBook.prototype.drag_drop_group_;
 
 /**
  * Name of base CSS class
@@ -169,6 +204,7 @@ bitex.ui.OrderBook.prototype.createDom = function() {
   }
 
   var el = goog.soy.renderAsElement(bitex.ui.OrderBook.templates.OrderBook, {
+    side: this.side_,
     title: title,
     columns: columns
   });
@@ -264,7 +300,112 @@ bitex.ui.OrderBook.prototype.decorateInternal = function(element) {
 bitex.ui.OrderBook.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
   this.getHandler().listen( this.getElement(), goog.events.EventType.CLICK, this.onClick_ );
+
+  this.drag_drop_group_.addTarget(this.drag_drop_group_);
+  this.drag_drop_group_.setSourceClass(goog.getCssName(this.getBaseCssClass(),  'source'));
+  this.drag_drop_group_.setTargetClass(goog.getCssName(this.getBaseCssClass(),  'target'));
+  this.drag_drop_group_.init();
+
+
+  this.getHandler().listen( this.drag_drop_group_,
+                            goog.fx.AbstractDragDrop.EventType.DRAG, this.onDrag_ );
+
+  this.getHandler().listen( this.drag_drop_group_,
+                            goog.fx.AbstractDragDrop.EventType.DROP, this.onDrop_ );
+
+  this.getHandler().listen( this.drag_drop_group_,
+                            goog.fx.AbstractDragDrop.EventType.DRAGOVER, this.onDragOver_ );
+
+  this.getHandler().listen( this.drag_drop_group_,
+                          goog.fx.AbstractDragDrop.EventType.DRAGOUT, this.onDragOut_ );
+
+  this.getHandler().listen( this.drag_drop_group_,
+                            goog.fx.AbstractDragDrop.EventType.DRAGSTART, this.onDragStart_ );
+
+  this.getHandler().listen( this.drag_drop_group_,
+                            goog.fx.AbstractDragDrop.EventType.DRAGEND, this.onDragEnd_ );
+
 };
+
+
+/**
+ * @param {goog.fx.DragListGroupEvent} e
+ */
+bitex.ui.OrderBook.prototype.onDrag_  = function(e) {};
+
+/**
+ * @param {goog.fx.DragListGroupEvent} e
+ */
+bitex.ui.OrderBook.prototype.onDrop_  = function(e) {
+  var dest_el  = e.dropTargetItem.element;
+  goog.dom.classes.remove(dest_el,  goog.getCssName(this.getBaseCssClass(),  'drag') );
+
+  var src_el = e.dragSourceItem.element;
+
+  if (src_el !== dest_el) {
+    var original_order_id = src_el.getAttribute('data-order-id');
+    var original_qty = parseInt(src_el.getAttribute('data-qty-value'), 10);
+    var cum_qty = parseInt(src_el.getAttribute('data-cum-qty-value'), 10);
+    var original_price = parseInt(src_el.getAttribute('data-price-value'), 10);
+    var pip = this.priceCurrencyDef_.pip;
+
+    var new_price = parseInt(dest_el.getAttribute('data-price-value'), 10);
+    var new_qty = original_qty;
+    if (this.side_ ==  bitex.ui.OrderBook.Side.BUY) {
+      new_price = new bitex.primitives.Price(new_price, pip).pipUp();
+      new_qty = parseInt(original_price * original_qty / new_price, 10);
+    } else {
+      new_price = new bitex.primitives.Price(new_price, pip).pipDown();
+    }
+
+    this.dispatchEvent(
+        new bitex.ui.OrderBookEvent(bitex.ui.OrderBook.EventType.CANCEL_REPLACE,
+                                    original_order_id, new_qty, cum_qty,new_price));
+  }
+};
+
+/**
+ * @param {goog.fx.DragListGroupEvent} e
+ */
+bitex.ui.OrderBook.prototype.onDragOut_  = function(e) {
+  goog.dom.classes.remove(e.dropTargetItem.element,  goog.getCssName(this.getBaseCssClass(),  'drag') );
+};
+
+
+/**
+ * @param {goog.fx.DragListGroupEvent} e
+ */
+bitex.ui.OrderBook.prototype.onDragOver_  = function(e) {
+  var src_el = e.dragSourceItem.element;
+  var dest_el  = e.dropTargetItem.element;
+
+  if (src_el !== dest_el) {
+    goog.dom.classes.add(e.dropTargetItem.element,  goog.getCssName(this.getBaseCssClass(),  'drag') );
+  }
+};
+
+/**
+ * @param {goog.fx.DragListGroupEvent} e
+ */
+bitex.ui.OrderBook.prototype.onDragStart_  = function(e) {
+  var order_data = e.dragSourceItem.data;
+
+  if (!goog.isDefAndNotNull(order_data) || (!order_data.allowDrag) ) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
+  goog.style.setOpacity(e.dragSourceItem.element, 0.5);
+};
+
+/**
+ * @param {goog.fx.DragDropEvent} e
+ */
+bitex.ui.OrderBook.prototype.onDragEnd_  = function(e) {
+  goog.style.setOpacity(e.dragSourceItem.element, 1);
+};
+
 
 /**
  * @param {goog.events.Event} e
@@ -342,6 +483,8 @@ goog.inherits(bitex.ui.OrderBookEvent, goog.events.Event);
 bitex.ui.OrderBook.prototype.clear  = function(){
   var dom = this.getDomHelper();
   goog.dom.removeChildren(this.bodyEl_);
+
+  this.drag_drop_group_.removeItems();
 };
 
 
@@ -355,6 +498,7 @@ bitex.ui.OrderBook.prototype.deleteOrderThru = function( index) {
   var child;
   while ((child = this.bodyEl_.firstChild) && index>0 ) {
     this.bodyEl_.removeChild(child);
+    this.drag_drop_group_.removeItem(child);
     index--;
   }
 
@@ -399,7 +543,9 @@ bitex.ui.OrderBook.prototype.deleteOrder = function( index) {
 
   }
 
-  dom.removeNode(trEl );
+  dom.removeNode(trEl);
+
+  this.drag_drop_group_.removeItem(trEl);
 };
 
 /**
@@ -408,7 +554,7 @@ bitex.ui.OrderBook.prototype.deleteOrder = function( index) {
  */
 bitex.ui.OrderBook.prototype.updateOrder = function( index, qty) {
   var dom = this.getDomHelper();
-  
+
   var formatter = new goog.i18n.NumberFormat( this.qtyCurrencyDef_.format, this.qtyCurrencyDef_.code );
   formatted_qty = formatter.format(qty/1e8);
 
@@ -459,6 +605,11 @@ bitex.ui.OrderBook.prototype.updateOrder = function( index, qty) {
 bitex.ui.OrderBook.prototype.insertOrder = function( index, id, price, qty, username, broker ) {
   var dom = this.getDomHelper();
 
+  /**
+   * @desc Title describing your onder on your username
+   */
+  var MSG_ORDER_BOOK_YOUR_ORDER = goog.getMsg('Your Order');
+
   var qty_formatter = new goog.i18n.NumberFormat( this.qtyCurrencyDef_.format, this.qtyCurrencyDef_.code );
   formatted_qty = qty_formatter.format(qty/1e8);
 
@@ -468,40 +619,34 @@ bitex.ui.OrderBook.prototype.insertOrder = function( index, id, price, qty, user
   }
   formatted_price = price_formatter.format(price/1e8);
 
-  var priceEl = dom.createDom( 'td', goog.getCssName(this.getBaseCssClass(), 'price') , formatted_price);
-  var qtyEl = dom.createDom( 'td', goog.getCssName(this.getBaseCssClass(), 'qty'), formatted_qty);
-
-  var userNameEl;
+  var orderId = null;
+  var isMyOrder = false;
   if (username === this.username_ || broker === this.username_ ){
-    userNameEl = dom.createDom('td', undefined,
-                   dom.createDom( 'a', { 'class':'btn-cancel-order text-error', 'href':'', 'data-order-id':id },
-                     dom.createDom( 'i', { 'class':'icon-remove', 'style':'line-height: 2px;', 'data-order-id':id}, '  ' + username )));
-  } else {
-    userNameEl = dom.createDom( 'td', goog.getCssName(this.getBaseCssClass(), 'username'), username);
+    orderId = id;
+  }
+  if (username === this.username_){
+    username = MSG_ORDER_BOOK_YOUR_ORDER;
+    isMyOrder = true;
   }
 
-  var td_list;
-  if (this.side_ ==  bitex.ui.OrderBook.Side.BUY) {
-    goog.dom.classes.add( userNameEl, goog.getCssName(this.getBaseCssClass(), 'left') );
-    goog.dom.classes.add( priceEl   , goog.getCssName(this.getBaseCssClass(), 'right') );
+  var tmpWrapper = dom.createDom( goog.dom.TagName.TABLE, undefined,dom.createDom( goog.dom.TagName.TBODY ));
+  tmpWrapper.innerHTML = bitex.ui.OrderBook.templates.OrderBookOrderRow({
+    username: username,
+    qty: formatted_qty,
+    price: formatted_price,
+    side: this.side_,
+    orderId: orderId 
+  });
 
-    td_list = [ userNameEl, qtyEl, priceEl ];
-
-  } else {
-    goog.dom.classes.add( userNameEl, goog.getCssName(this.getBaseCssClass(), 'right') );
-    goog.dom.classes.add( priceEl   , goog.getCssName(this.getBaseCssClass(), 'left') );
-
-    td_list = [ priceEl, qtyEl, userNameEl];
-  }
-
-  var tr_properties = {
-    'data-order-id':  id,
-    'class': goog.getCssName(this.getBaseCssClass(), 'row')
-  };
+  var rowEl = tmpWrapper.firstChild.firstChild;
+  rowEl.setAttribute('data-order-id', id);
 
   var row_elements = dom.getChildren(this.bodyEl_ );
   var cumulative_qty = qty;
-  var rowEl = dom.createDom( 'tr', tr_properties , td_list );
+  if (isMyOrder) {
+    goog.dom.classes.add( rowEl, goog.getCssName(this.getBaseCssClass(), 'movable') );
+  }
+
   rowEl.setAttribute('data-price-value', price);
   rowEl.setAttribute('data-qty-value', qty);
   if (index == 0) {
@@ -530,6 +675,7 @@ bitex.ui.OrderBook.prototype.insertOrder = function( index, id, price, qty, user
 
 
   dom.insertChildAt( this.bodyEl_, rowEl, index );
+  this.drag_drop_group_.addItem(rowEl, { allowDrag: (isMyOrder || broker === this.username_) } );
 
 
   var blink_class  = 'md-blink';

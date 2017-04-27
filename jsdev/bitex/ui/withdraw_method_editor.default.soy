@@ -32,9 +32,20 @@
             <option value="validateAlpha" {if $data['validator'] == 'validateAlpha'}selected{/if} >Alpha</option>
             <option value="validateUsername" {if $data['validator'] == 'validateUsername'}selected{/if} >Username</option>
             <option value="validateAlphaNum" {if $data['validator'] == 'validateAlphaNum'}selected{/if} >Alpha Numeric</option>
+            <option value="validatePhrase" {if $data['validator'] == 'validatePhrase'}selected{/if} >Phrase</option>
+            <option value="validatePhoneNumber" {if $data['validator'] == 'validatePhoneNumber'}selected{/if} >Phone Number</option>
             <option value="validateAddress" {if $data['validator'] == 'validateAddress'}selected{/if}  >BTC Address</option>
+            <option value="validateCPFCNPJ" {if $data['validator'] == 'validateCPFCNPJ'}selected{/if} >CPF/CNPJ</option>
         </select>
     </td>
+
+    <td>
+        <select id="{$id}_field_required_{$idx}" class="withdraw-method-editor-field-required">
+            <option value="text" {if $data['required'] == 'Yes'}selected{/if}>{msg desc="Yes option on required select"}Yes{/msg}</option>
+            <option value="text" {if $data['required'] == 'No'}selected{/if}>{msg desc="No option on required select"}No{/msg}</option>
+        </select>
+    </td>
+
 
     <td><input id="{$id}_field_value_{$idx}" type="text" class="input-block-level withdraw-method-editor-field-value" placeholder="" value="{$data['value']}"></td>
     <td><button id="{$id}_field_delete_{$idx}" data-index="{$idx}" class="btn btn-mini btn-danger withdraw-method-editor-field-action-delete withdraw-method-editor-field-action">{msg desc="Field delete action"}delete{/msg}</button></td>
@@ -110,6 +121,43 @@
           </div>
 
           <div class="control-group">
+            <label class="control-label">{msg desc="Method Costs label"}Costs{/msg}</label>
+            <div class="controls">
+              <div class="row-fluid">
+                <div class="span6">
+                  <div class="input-append">
+                    <input id="{$id}_percent_cost"
+                           type="text"
+                           class="input-block-level"
+                           autocomplete="off"
+                           maxlength="4"
+                           data-uniform-validators="required ; validateNumber; validateMin 0; validateMax 25"
+                           label="{msg desc="Percent cost placeholder"}Percent cost{/msg}"
+                           required
+                           value="{$model['percent_cost'] }">
+                    <span class="add-on">%</span>
+                  </div>
+                </div>
+                <div class="span6">
+                  <div class="input-prepend">
+                    <span class="add-on">{$model['currency']}</span>
+                    <input id="{$id}_fixed_cost"
+                           type="text"
+                           class="input-block-level"
+                           autocomplete="off"
+                           data-uniform-validators="required ; validateNumber; validateMin 0"
+                           label="{msg desc="Fixed cost placeholder"}Fixed cost{/msg}"
+                           required
+                           value="{ $model['fixed_cost'] }">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div class="control-group">
             <table id="{$id}_table" class="table table-condensed table-bordered table-hover">
                 <thead>
                   <tr>
@@ -122,6 +170,7 @@
                       <th> {msg desc="Method field header"}Placeholder{/msg} </th>
                       <th> {msg desc="Method field header"}Type{/msg} </th>
                       <th> {msg desc="Method field header"}Validator{/msg} </th>
+                      <th> {msg desc="Method field header"}Required{/msg} </th>
                       <th> {msg desc="Method field header"}Value{/msg} </th>
                       <th> {msg desc="Method field header"}Actions{/msg} </th>
                   </tr>

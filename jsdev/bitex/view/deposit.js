@@ -299,19 +299,21 @@ bitex.view.DepositView.prototype.onDepositListTableClick_ = function(e) {
         this.dispatchEvent(bitex.view.View.EventType.SHOW_QR);
         break;
       case 'SHOW_RECEIPT':
-        this.receipt_data_ = {
-          'SubmissionID': this.data_['Data']['SubmissionID'],
-          'DepositReceipt': this.data_['Data']['DepositReceipt']
-        };
+        this.receipt_data_ = goog.object.unsafeClone(this.data_['Data']);
         this.dispatchEvent(bitex.view.View.EventType.SHOW_RECEIPT);
         break;
       case 'UPLOAD':
         this.dispatchEvent(bitex.view.View.EventType.UPLOAD_RECEIPT);
         break;
+      case 'KYC':
+        this.dispatchEvent(bitex.view.View.EventType.SHOW_KYC);
       case 'CANCEL':
       case 'PROGRESS':
       case 'COMPLETE':
         this.dispatchEvent(bitex.view.View.EventType.PROCESS_DEPOSIT);
+        break;
+      case 'INSTANTANEOUS':
+        this.dispatchEvent(bitex.view.View.EventType.INSTANTANEOUS_DEPOSIT);
         break;
     }
   }
@@ -368,6 +370,7 @@ bitex.view.DepositView.prototype.onDepositListTableRequestData_ = function(e) {
     clientID = model.get('UserID');
   }
 
+
   var status = ['0', '1', '2', '4', '8'];
   if (goog.isDefAndNotNull(filter)) {
     goog.array.forEach(filter, function(f, idx_filter){
@@ -379,6 +382,15 @@ bitex.view.DepositView.prototype.onDepositListTableRequestData_ = function(e) {
       }
     }, this);
   }
+
+  // TEMPORARY: Disable the full search until we implement a full text search
+  if (model.get('IsBroker') &&  this.is_requests_from_customers_ && goog.isDefAndNotNull(filter) && status.length > 1) {
+    return false;
+  }
+  if (model.get('IsBroker') &&  this.is_requests_from_customers_ && goog.isDefAndNotNull(filter) && status[0] == '4') {
+    return false;
+  }
+
 
   conn.requestDepositList(this.request_id_,              // opt_requestId
                           page,                          // opt_page
@@ -413,4 +425,11 @@ bitex.view.DepositView.prototype.onDepositListReponse_ = function(e) {
   var msg = e.data;
 
   this.deposit_list_table_.setResultSet( msg['DepositListGrp'], msg['Columns'] );
+};
+
+/**
+ * @return {Object}
+ */
+bitex.view.DepositView.prototype.getData = function() {
+  return this.data_;
 };

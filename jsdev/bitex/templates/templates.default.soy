@@ -1,11 +1,5 @@
 {namespace bitex.templates}
 
-/**
-  */
-{template .ProfileViewChangePasswordPlaceHolder}
-  <div class="span6 well"></div>
-{/template}
-
 
 /**
   * @param permissions
@@ -45,6 +39,34 @@
   </ul>
 {/template}
 
+/**
+  * @param label
+  * @param key
+  * @param password
+  * @param secret
+  */
+{template .APIKeyCreatedDialogContent}
+  <p>
+   {msg desc="API Key created dialog description"}The API Key '{{$label}}' has been created successfully. Please make sure to store the credentials below in a secure location.{/msg}
+  </p>
+
+  <dl class="dl-horizontal">
+    <dt>{msg desc="API Key label on API Keycreated dialog"}API Key{/msg}</dt>
+    <dd>{{$key}}</dd>
+    <dt>{msg desc="API Password label on API Keycreated dialog"}API Password{/msg}</dt>
+    <dd>{{$password}}</dd>
+    <dt>{msg desc="API Secret label on API Keycreated dialog"}API Secret{/msg}</dt>
+    <dd>{{$secret}}</dd>
+  </dl>
+
+  <div class="alert alert-error">
+    <strong>{msg desc="Warning message on the API Key created dialog description"}Warning! {/msg}</strong>
+    {msg desc="Warning message on the API Key created dialog description"}
+      The API secret and password will never be displayed again. Make sure you have saved it before closing this window.
+    {/msg}
+  </div>
+{/template}
+
 
 /**
   * @param msg_customer_detail
@@ -76,6 +98,46 @@
   <img src="{$filename}" style="width:500px"/>
 {/template}
 
+/**
+  * @param depositDetailData
+  * @param depositReceiptList
+  */
+{template .DepositDetailDialogContent}
+  <table class="table table-bordered table-condensed">
+    <tbody>
+      {foreach $data in $depositDetailData}
+        <tr>
+          <td>{{$data['key']}}{sp}:</td>
+          <td>{{$data['value']}}</td>
+        </tr>
+      {/foreach}
+      {if $depositReceiptList} 
+        <tr>
+          <td>Recibo:</td>
+          <td>
+          {foreach $receipt in $depositReceiptList}
+            <a href="{{$receipt['url']}}" target="_blank">{msg desc="Download picture link on deposit receipt dialog content"}Download{/msg}</a>{sp}
+          {/foreach}
+          </td>
+        </tr>
+
+        {foreach $receipt in $depositReceiptList}
+          <tr>
+            <td colspan="2">
+              {if $receipt['type'] == 'image' }
+                <img width="100%" src="{{$receipt['url']}}"/>
+              {else}
+                {if $receipt['type'] == 'pdf' }
+                  <iframe src="https://docs.google.com/gview?url={{$receipt['url']}}&embedded=true" style="width:515px; height:300px;" frameborder="0" />
+                {/if}
+              {/if}
+            </td>
+          </tr>
+        {/foreach}
+      {/if}
+    </tbody>
+  </table>
+{/template}
 
 /**
   * @param depositReceiptList
@@ -142,14 +204,55 @@
     </div>
 
     <div class="control-group">
-      <label class="control-label">{msg desc="Net amount"}Net amount{/msg}</label>
+      <label class="control-label net-amount">{msg desc="Net amount"}Net amount{/msg}</label>
       <div class="controls">
-        <label id="{$netValueID}" class="control-label broker-confirm-deposit-net-amount" style="text-align: left;"></label>
+        <label id="{$netValueID}" class="control-label net-amount broker-confirm-deposit-net-amount" style="text-align: left;"></label>
         <input id="{$netValueID}_value" type="hidden" value="">
       </div>
     </div>
 
   </form>
+{/template}
+
+/**
+  * @param variables
+  * @param pattern
+  * @param formula
+  * @param value
+  */
+{template .InstantFiatDepositDialogContent}
+  <div class="row-fluid" data-deposit-status="confirm">
+      <p>{msg desc="Instant deposit fiat description 1"}Net value:{/msg}{sp}
+        <span class="bitex-model"
+              data-model-key-list="{$variables}"
+              data-model-formula="min( {$formula},  {$value} )"
+              data-model-formatter="currency"
+              data-model-formatter-pattern="{$pattern}"
+              data-blink-class="balance-info-blink"></span>
+      </p>
+
+      <p>{msg desc="Instant deposit fiat description 2"}Pre approval limit:{/msg}
+            <span class="bitex-model"
+                    data-model-key-list="{$variables}"
+                    data-model-formula="{$formula}"
+                    data-model-formatter="currency"
+                    data-model-formatter-pattern="{$pattern}"
+                    data-blink-class="balance-info-blink">
+            </span>{sp}{msg desc="Instant deposit fiat description 3"}(3x the approx. value of your account.){/msg}
+      </p>
+
+      <p>{msg desc="Instant deposit fiat description 4"}Pre approval fee: 0% (Promotional){/msg}</p>
+
+      <div class="well">
+          <p>
+              {msg desc="Instant deposit fiat message"}
+                  You won't be able to withdrawal funds until your DEPOSIT IS CONFIRMED by the exchange.
+                  In case of a fake deposit receipt or any fraud attempt, an administrative fee
+                  of 30% of the deposit amount will be applied and your account will be TERMINATED.
+              {/msg}
+          </p>
+      </div>
+  </div>
 {/template}
 
 
@@ -216,18 +319,30 @@
                 {if $msg_broker['FormattedTransactionFeeBuy'] == $msg_broker['FormattedTransactionFeeSell']}
                   <tr>
                     <td>{msg desc="label in broker fees table"}Trade fee{/msg}</td>
-                    <td>{$msg_broker['FormattedTransactionFeeBuy']}</td>
+                    {if $msg_broker['FormattedTakerTransactionFeeBuy'] == $msg_broker['FormattedTransactionFeeBuy']}
+                      <td>{$msg_broker['FormattedTransactionFeeBuy']}</td>
+                    {else}
+                      <td>{$msg_broker['FormattedTakerTransactionFeeBuy']} / {$msg_broker['FormattedTransactionFeeBuy']}</td>
+                    {/if}
                     <td></td>
                   </tr>
                 {else}
                   <tr>
                     <td>{msg desc="label in broker fees table"}Trade fee - Buy side{/msg}</td>
-                    <td>{$msg_broker['FormattedTransactionFeeBuy']}</td>
+                    {if $msg_broker['FormattedTakerTransactionFeeBuy'] == $msg_broker['FormattedTransactionFeeBuy']}
+                      <td>{$msg_broker['FormattedTransactionFeeBuy']}</td>
+                    {else}
+                      <td>{$msg_broker['FormattedTakerTransactionFeeBuy']} / {$msg_broker['FormattedTransactionFeeBuy']}</td>
+                    {/if}
                     <td></td>
                   </tr>
                   <tr>
                     <td>{msg desc="label in broker fees table"}Trade fee - Sell side{/msg}</td>
-                    <td>{$msg_broker['FormattedTransactionFeeSell']} %</td>
+                    {if $msg_broker['FormattedTakerTransactionFeeSell'] == $msg_broker['FormattedTransactionFeeSell']}
+                      <td>{$msg_broker['FormattedTransactionFeeSell']} %</td>
+                    {else}
+                      <td>{$msg_broker['FormattedTakerTransactionFeeSell']} / {$msg_broker['FormattedTransactionFeeSell']}</td>
+                    {/if}
                     <td></td>
                   </tr>
                 {/if}
@@ -264,11 +379,11 @@
                 <tr>
                   <td>{$crypto_currencies['CurrencyDescription']}</td>
                   <td>{$wallets['type'] }</td>
-                  <td>
+                  <td class="broker-wallet">
                   {if $crypto_currencies['CurrencyCode'] == 'BTC' }
                     {switch $wallets['address'][0]}
                       {case 'm','n','2','9','c'}
-                        <a href="https://test-insight.bitpay.com/address/{$wallets['address']}/" target="_blank">{$wallets['address'] }</a>
+                        <a href="https://live.blockcypher.com/btc-testnet/address/{$wallets['address']}/" target="_blank">{$wallets['address'] }</a>
                       {default}
                         <a href="https://blockchain.info/address/{$wallets['address']}/" target="_blank">{$wallets['address'] }</a>
                     {/switch}
@@ -314,7 +429,7 @@
       <label class="control-label" for="{$reason_id}" >{msg desc="Cancel deposit reason label"}Reason:{/msg}</label>
       <div class="controls">
         <select id="{$reason_id}">
-          <option value=0 selected>{msg desc="reason for cancelling deposit"}Other{/msg}</option>
+          <option value="0" selected>{msg desc="reason for cancelling deposit"}Other{/msg}</option>
         </select>
       </div>
     </div>
@@ -328,39 +443,6 @@
 {/template}
 
 
-/**
-  * @param reason_id
-  * @param custom_reason_id
-  */
-{template .CancelWithdrawDialogContent}
-<p>{msg desc="Cancel withdraw dialog message"}Enter a reason for cancelling the user withdraw{/msg}</p>
-<form class="form-horizontal">
-  <fieldset>
-    <div class="control-group">
-      <label class="control-label" for="{$reason_id}" >{msg desc="Cancel withdraw reason label"}Reason:{/msg}</label>
-      <div class="controls">
-        <select id="{$reason_id}">
-          <option value=0>{msg desc="reason for cancelling withdraw"}Other{/msg}</option>
-          <option value=-1 selected>{msg desc="reason for cancelling withdraw"}Insufficient funds{/msg}</option>
-          <option value=-2>{msg desc="reason for cancelling withdraw"}Account not verified{/msg}</option>
-          <option value=-3>{msg desc="reason for cancelling withdraw"}Suspicion of fraud{/msg}</option>
-          <option value=-4>{msg desc="reason for cancelling withdraw"}Withdrawing to a different account than yours{/msg}</option>
-          <option value=-5>{msg desc="reason for cancelling withdraw"}Invalid wallet{/msg}</option>
-          <option value=-6>{msg desc="reason for cancelling withdraw"}Invalid bank account{/msg}</option>
-          <option value=-7>{msg desc="reason for cancelling withdraw"}Amount exceeded your daily withdraw limit{/msg}</option>
-          <option value=-8>{msg desc="reason for cancelling withdraw"}User has deposits that are not yet confirmed{/msg}</option>
-        </select>
-      </div>
-    </div>
-    <div class="control-group">
-      <div class="controls">
-        <textarea id="{$custom_reason_id}" rows="2" style="display:none;"></textarea>
-      </div>
-    </div>
-  </fieldset>
-</form>
-
-{/template}
 
 /**
   */
@@ -369,15 +451,89 @@
     <fieldset>
       <div class="control-group">
         <label>
-          {msg desc="Google Authenticator code dialog label"}Google Authenticator code:{/msg}
+              {msg desc="Google Authenticator code dialog label"}Google Authenticator code:{/msg}
         </label>
         <input name="token"
+               id="id_input_google_authenticator"
                data-uniform-validators="required"
                data-uniform-label="{msg desc="Limit table field header"}Google authenticator code{/msg}"
                label="{msg desc="Google Authenticator code placeholder"}eg. 555555{/msg}"
                class="input-large"
                type="text"
                size="10">
+      </div>
+    </fieldset>
+  </form>
+{/template}
+
+
+/**
+  * @param id
+  * @param description
+  * @param askForTrust
+  */
+{template .SecondFactorTokenDialogContent}
+  <form class="form-horizontal" data-deposit-status="prepare" data-uniform-control-holder-class="control-group">
+    <fieldset>
+      <div class="control-group">
+        <label>
+          {$description}
+        </label>
+        <input name="token"
+               id="{$id}_token"
+               data-uniform-validators="required"
+               label="{msg desc="Placeholder for the code field on the second factor token dialog"}eg. 5555555{/msg}"
+               class="input-large"
+               type="text"
+               size="10">
+      </div>
+      {if $askForTrust}
+      <div class="control-group">
+        <label class="checkbox">
+          <input type="checkbox" name="TrustedDevice">{msg desc="Label on the two factor authenticatior"}Trust this device for 30 days{/msg}
+        </label>
+      </div>
+      {/if}
+    </fieldset>
+  </form>
+{/template}
+
+/**
+  * @param id
+  */
+{template .BrokerChangeEmailDialogContent}
+  <form class="form-horizontal" data-deposit-status="prepare" data-uniform-control-holder-class="control-group">
+    <fieldset>
+      <div class="alert alert-warning">
+        <strong>{msg desc="Warning label on the Broker change email dialog content"}Warning{/msg}</strong>{sp}-{sp}
+        {msg desc="Change email warning message on the broker change email dialog content"}
+            Authorizing the change of a user's email address is always dangerous.
+            Hackers will try to social engineer you into changing a user's email address to one they have control over.
+            Additionally a bad intentioned user can pretend to be the victim of a hacker and claim that he did not
+            request the change in order to ask for reimbursement.
+        {/msg}
+      </div>
+      <div class="control-group">
+        <label>{msg desc="change email label"}New Email{/msg}</label>
+        <input
+          id="{$id}_new_email"
+          type="text"
+          data-uniform-validators="validateEmail;required"
+          size="10">
+      </div>
+      <div class="control-group">
+        <label class="checkbox"  for="{$id}_check_warning_1">
+          <input type="checkbox" id="{$id}_check_warning_1">{msg desc="First label warning on broker change email"}
+          I verified the identity of the user who requested the change with a video conference.{/msg}
+        </label>
+        <label class="checkbox"  for="{$id}_check_warning_2">
+          <input type="checkbox" id="{$id}_check_warning_2">{msg desc="Second label warning on broker change email"}
+            I am certain that the user is not able to receive the emails sent by our service.{/msg}
+        </label>
+        <label class="checkbox"  for="{$id}_check_warning_3">
+          <input type="checkbox" id="{$id}_check_warning_3">{msg desc="Third label warning on broker change email"}
+            I take 100% responsibility of possible losses should this user turn out to be an impostor.{/msg}
+        </label>
       </div>
     </fieldset>
   </form>
@@ -406,6 +562,8 @@
 
 /**
   * @param id
+  * @param taker_buy_fee
+  * @param taker_sell_fee
   * @param buy_fee
   * @param sell_fee
   */
@@ -414,8 +572,18 @@
   <form class="form-horizontal">
 
     <div class="control-group">
-
-      <label class="control-label" for="{$id}_buy_fee">{msg desc="Buy fee"}Buy fee {/msg}</label>
+      <label class="control-label" for="{$id}_buy_fee">{msg desc="Buy fee"}Taker Buy fee {/msg}</label>
+      <div class="controls">
+        <input type="text" id="{$id}_taker_buy_fee"  style="text-align: right;" value="{$taker_buy_fee}"/>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" id="{$id}_broker_taker_buy_fee"> Use Broker Fee
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="{$id}_buy_fee">{msg desc="Buy fee"}Maker Buy fee {/msg}</label>
       <div class="controls">
         <input type="text" id="{$id}_buy_fee"  style="text-align: right;" value="{$buy_fee}"/>
         <div class="checkbox">
@@ -427,7 +595,19 @@
     </div>
 
     <div class="control-group">
-      <label class="control-label" for="{$id}_sell_fee">{msg desc="Buy fee"}Sell fee{/msg}</label>
+      <label class="control-label" for="{$id}_sell_fee">{msg desc="Buy fee"}Taker Sell fee{/msg}</label>
+      <div class="controls">
+        <input type="text" id="{$id}_taker_sell_fee"  style="text-align: right;" value="{$taker_sell_fee}"/>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="{$id}_broker_taker_sell_fee"> Use Broker Fee
+            </label>
+          </div>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label" for="{$id}_sell_fee">{msg desc="Buy fee"}Maker Sell fee{/msg}</label>
       <div class="controls">
         <input type="text" id="{$id}_sell_fee"  style="text-align: right;" value="{$sell_fee}"/>
           <div class="checkbox">
@@ -442,72 +622,7 @@
 
 {/template}
 
-/**
-  * @param accounts
-  */
-{template .YourAccountSummary}
-  <h6>{msg desc="Your account label in the right side bar"}Your account{/msg}</h6>
-    {foreach $account in $accounts}
-      <table class="table table-bordered account-summary-table" >
-        <tbody>
 
-      <tr id="id_account_summary_{$account['brokerID']}"
-          class='account-summary-broker model-action-set'
-          data-key="SelectedBrokerID"
-          data-value="{$account['brokerID']}"
-          {if length($accounts) <= 1 or length($account['currencies']) == 0 }style="display:none;"{/if}>
-            <td colspan="3"><strong>{$account['brokerName']}</strong></td>
-      </tr>
-
-      {foreach $currency_info in $account['currencies']}
-        <tr>
-
-          <td style="padding: 4px;{if not isFirst($currency_info) }border-top: 0;{/if}">
-            <strong>{$currency_info['currency']}</strong>
-          </td>
-
-          <td style="padding: 4px;{if not isFirst($currency_info) }border-top: 0;{/if}">
-            <span class="bitex-model"
-               data-model-key="formatted_balance_{$account['brokerID']}:{$account['clientID']}_{$currency_info['currency']}"
-               data-blink-class="balance-info-blink">{$currency_info['formattedBalance']}
-            </span>
-            <abbr title="{msg desc="Unconfirmed deposits"}Unconfirmed deposits from your confirmed addresses{/msg}">
-              <em>
-                 <span class="bitex-model"
-                    data-model-key="formatted_position_{$account['brokerID']}:{$account['clientID']}_{$currency_info['currency']}"
-                    data-blink-class="balance-info-blink"></span>
-               </em>
-            </abbr>
-
-         </td>
-          <td style="padding: 4px;border-left:0;{if not isFirst($currency_info) }border-top: 0;{/if}">
-            {if $currency_info['showDeposit'] and  $currency_info['showWithdraw']}
-              <div class="btn-group">
-            {/if}
-
-            {if $currency_info['showDeposit'] }
-              <button class="btn btn-mini" data-action="deposit" data-currency="{$currency_info['currency']}">
-                <i data-action="deposit" data-currency="{$currency_info['currency']}" class="icon-download-alt"></i>
-              </button>
-            {/if}
-            {if $currency_info['showWithdraw'] }
-              <button class="btn btn-mini" data-action="withdraw" data-currency="{$currency_info['currency']}">
-                <i data-action="withdraw" data-currency="{$currency_info['currency']}" class="icon-upload-alt"></i>
-              </button>
-            {/if}
-
-            {if $currency_info['showDeposit'] and  $currency_info['showWithdraw']}
-              </div>
-            {/if}
-
-          </td>
-        </tr>
-      {/foreach}
-
-        </tbody>
-      </table>
-    {/foreach}
-{/template}
 
 /**
   * @param currencies
@@ -587,6 +702,10 @@
     <div class="text-center">
       <img src="https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=bitcoin%3A{$deposit_message['Data']['InputAddress']}{if $amount}%3Famount%3D{$amount}{/if}"/>
     </div>
+    <p class="text-center">
+      {msg desc="Secured with BitGO"}Secured with{/msg}{sp}
+      <a href="https://www.bitgo.com/wallet?utm_source=blinktrade&amp;utm_medium=bd" target="_blank"><img style="width: 85px;" src="https://www.bitgo.com/img/bitgo-logo-black.png"></a>
+    </p>
     {if $hasInstantDepositsEnabled}
       <div class="alert alert-block">
         {msg desc="Instant deposit warning"}
@@ -695,6 +814,46 @@
   </div>
 {/template}
 
+/**
+  * @param amount
+  * @param price
+  * @param total
+  * @param side
+  */
+{template .ConfirmOrderContentDialog}
+  <div class="row-fluid">
+    <p>
+      {msg desc="Confirmation order title"}Confirm your order{/msg}
+    </p>
+    <table class="table table-bordered">
+      <tr>
+        <td>
+          {if $side == '1'}
+            {msg desc="You are buying message"}You are buying{/msg}
+          {else}
+            {msg desc="You are selling message"}You are selling{/msg}
+          {/if}
+          </td>
+        <td>
+          <span class="bitex-model">{$amount}</span>
+        </td>
+      </tr>
+      <tr>
+        <td>{msg desc="Price per bitcoin confirmation message"}Price per bitcoin{/msg}</td>
+        <td>
+          <span class="bitex-model">{$price}</span>
+        </td>
+      </tr>
+      <tr>
+        <td>{msg desc="For a total message"}For a total of{/msg}</td>
+        <td>
+          <span class="bitex-model">{$total}</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+{/template}
+
 
 /**
   * @param currencydescription
@@ -712,6 +871,23 @@
     </h3>
     <br/>
     <br/>
+  </div>
+{/template}
+
+/**
+ * @param email
+ */
+{template .ConfirmEmailSignupContentDialog}
+  <div class="row-fluid">
+    <div class="control-group">
+      <label for="email_confirm_field">{$email}</label>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="email_confirm_field">{msg desc="Confirm Email"}Email: {/msg}</label>
+      <div class="controls">
+        <input type="text" id="id_email_confirm_field" />
+      </div>
+    </div>
   </div>
 {/template}
 
@@ -772,9 +948,9 @@
 </div>
 
 <div class="control-group" style="{if $hideNetValueID}display:none{/if}">
-  <label class="control-label">{msg desc="Net amount"}Net amount{/msg}</label>
+  <label class="control-label net-amount">{msg desc="Net amount"}Net amount{/msg}</label>
   <div class="controls">
-    <label id="{$netValueID}" class="control-label" style="text-align: left;"></label>
+    <label id="{$netValueID}" class="control-label net-amount" style="text-align: left;"></label>
     <input id="{$netValueID}_value" type="hidden" value="">
   </div>
 </div>
@@ -836,6 +1012,8 @@
   * @param netValueID
   * @param hideNetAmount
   * @param? verificationLevel
+  * @param type
+  * @param netAmountLabel
   */
 {template .DepositWithdrawDialogContent}
   <form class="form-horizontal" data-deposit-status="prepare" data-uniform-control-holder-class="control-group">
@@ -849,6 +1027,18 @@
 
     <div class="error"></div>
 
+    {if $type == 'withdrawal'}
+      <div class="alert alert-warning text-left bitex-model"
+           data-model-action="show_element"
+           data-model-key-list="HasAnyPosition"
+           data-model-formula="HasAnyPosition"
+           style="display:none;">
+      {msg desc="Warning message when the user has unconfirmed deposits."}
+        You can't withdraw funds from the exchange while you have unconfirmed deposits.
+      {/msg}
+      </div>
+    {/if}
+
     {if not $force_method}
       {if length($methods) > 1}
         <div class="control-group">
@@ -856,7 +1046,7 @@
           <div class="controls">
             <select id="{$methodID}" name="Method" class="withdraw-method-selector">
               {foreach $method in $methods }
-               <option {if isFirst($method)}selected{/if} value="{$method['method']}"
+               <option value="{$method['method']}"
                     data-net-value="{$method['method']}_{$netValueID}"
                     data-percent-fee="{$method['method']}_{$percentFeeID}"
                     data-fixed-fee="{$method['method']}_{$fixedFeeID}">{$method['description']}</option>
@@ -964,9 +1154,9 @@
               </div>
 
               <div class="control-group" {if $hideNetAmount} style="display:none;" {/if} >
-                <label class="control-label">{msg desc="Net amount"}Net amount{/msg}</label>
+                <label class="control-label net-amount">{$netAmountLabel}:</label>
                 <div class="controls">
-                  <label id="{$method['method']}_{$netValueID}" class="control-label" style="text-align: left;"></label>
+                  <label id="{$method['method']}_{$netValueID}" class="control-label net-amount" style="text-align: left;"></label>
                   <input id="{$method['method']}_{$netValueID}_value" type="hidden" value="">
                 </div>
               </div>
@@ -993,8 +1183,7 @@
             {/if}
           {/if}
         {else}
-          <div class="withdraw-method" data-withdraw-method="{$method['method']}" style="{if not isFirst($method)}display:none;{/if}" >
-
+          <div class="withdraw-method" data-withdraw-method="{$method['method']}" style="{if length($methods) > 1}display:none;{/if}">
             {if $side == 'client'}
               <div class="control-group">
                 <label class="control-label">{msg desc="amount"}Amount{/msg}</label>
@@ -1016,7 +1205,7 @@
                       <em>
                         <small>
                           {if $method['limits'][$verificationLevel]['max']}
-                            {msg desc="amount help block"} Available: {$method['limits'][$verificationLevel]['formatted_max'] }{/msg}
+                            {msg desc="amount help block"} Maximum: {$method['limits'][$verificationLevel]['formatted_max'] }{/msg}
                             <br>
                           {/if}
                           {if $method['limits'][$verificationLevel]['min']}
@@ -1045,9 +1234,9 @@
             </div>
 
             <div class="control-group" {if $hideNetAmount} style="display:none;" {/if}>
-              <label class="control-label">{msg desc="Net amount"}Net amount{/msg}</label>
+              <label class="control-label net-amount">{$netAmountLabel}:</label>
               <div class="controls">
-                <label id="{$method['method']}_{$netValueID}" class="control-label broker-confirm-deposit-net-amount" style="text-align: left;"></label>
+                <label id="{$method['method']}_{$netValueID}" class="control-label net-amount broker-confirm-deposit-net-amount" style="text-align: left;"></label>
                 <input id="{$method['method']}_{$netValueID}_value" type="hidden" value="">
               </div>
             </div>
@@ -1086,6 +1275,8 @@
 
 
 /**
+  * @param taker_buy_fee
+  * @param taker_sell_fee
   * @param buy_fee
   * @param sell_fee
   */
@@ -1095,7 +1286,24 @@
       <tr>
         <td>
           <strong>
-             {msg desc="label for user buy fee"}Buy Fee{/msg}
+             {msg desc="label for user buy fee"}Taker Buy Fee{/msg}
+          </strong>
+        </td>
+        <td>
+          <span class="bitex-model">
+            {if $taker_buy_fee }
+              {$taker_buy_fee}
+            {else}
+              {msg desc="Using broker fee data"}-{/msg}
+            {/if}
+          </span>
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          <strong>
+             {msg desc="label for user buy fee"}Maker Buy Fee{/msg}
           </strong>
         </td>
         <td>
@@ -1109,10 +1317,28 @@
         </td>
       </tr>
 
+
       <tr>
         <td>
           <strong>
-             {msg desc="label for user sell fee"}Sell Fee{/msg}
+             {msg desc="label for user sell fee"}Taker Sell Fee{/msg}
+          </strong>
+        </td>
+        <td>
+          <span class="bitex-model">
+            {if $taker_sell_fee}
+              {$taker_sell_fee}
+            {else}
+              {msg desc="Using broker fee data"}-{/msg}
+            {/if}
+          </span>
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          <strong>
+             {msg desc="label for user sell fee"}Maker Sell Fee{/msg}
           </strong>
         </td>
         <td>
@@ -1125,6 +1351,7 @@
           </span>
         </td>
       </tr>
+
     </tbody>
   </table>
 {/template}
@@ -1158,12 +1385,12 @@
   */
 {template .AccountOverviewHeaderVerified}
   <select id="id_select_new_verification_level" data-profile-change="Verified" >
-    <option value=0 {if $msg_customer_detail['Verified']==0}selected{/if}>{msg desc="label on  overview header"}No{/msg}</option>
-    <option value=1 {if $msg_customer_detail['Verified']==1}selected{/if}>{msg desc="label on  overview header"}Pending{/msg}</option>
-    <option value=2 {if $msg_customer_detail['Verified']==2}selected{/if}>{msg desc="label on  overview header"}Progress{/msg}</option>
-    <option value=3 {if $msg_customer_detail['Verified']==3}selected{/if}>{msg desc="label on  overview header"}Yes - Level I {/msg}</option>
-    <option value=4 {if $msg_customer_detail['Verified']==4}selected{/if}>{msg desc="label on  overview header"}Yes - Level II {/msg}</option>
-    <option value=5 {if $msg_customer_detail['Verified']==5}selected{/if}>{msg desc="label on  overview header"}Yes - Level III {/msg}</option>
+    <option value="0" {if $msg_customer_detail['Verified']==0}selected{/if}>{msg desc="label on  overview header"}No{/msg}</option>
+    <option value="1" {if $msg_customer_detail['Verified']==1}selected{/if}>{msg desc="label on  overview header"}Pending{/msg}</option>
+    <option value="2" {if $msg_customer_detail['Verified']==2}selected{/if}>{msg desc="label on  overview header"}Progress{/msg}</option>
+    <option value="3" {if $msg_customer_detail['Verified']==3}selected{/if}>{msg desc="label on  overview header"}Yes - Level I {/msg}</option>
+    <option value="4" {if $msg_customer_detail['Verified']==4}selected{/if}>{msg desc="label on  overview header"}Yes - Level II {/msg}</option>
+    <option value="5" {if $msg_customer_detail['Verified']==5}selected{/if}>{msg desc="label on  overview header"}Yes - Level III {/msg}</option>
   </select>
 {/template}
 
@@ -1193,6 +1420,19 @@
     {/if}
 {/template}
 
+/**
+  * @param msg_customer_detail
+  */
+{template .AccountOverviewHeaderEmailTwoFactors}
+    {if $msg_customer_detail['EmailTwoFactorEnabled'] }
+      <span class="label label-success">{msg desc="label on  overview header"}Enabled{/msg}</span>
+      <a href="#" class="btn btn-primary btn-mini" data-action="DISABLE_EMAIL_TWO_FACTOR" data-row="{$msg_customer_detail['ID']}">{msg desc="label on overview header"}Disable{/msg}</a>
+    {else}
+      <span class="label label-important">{msg desc="label on  overview header"}Disabled{/msg}</span>
+      <a href="#" class="btn btn-primary btn-mini" data-action="ENABLE_EMAIL_TWO_FACTOR" data-row="{$msg_customer_detail['ID']}">{msg desc="label on overview header"}Enable{/msg}</a>
+    {/if}
+{/template}
+
 
 /**
   * @param msg_customer_detail
@@ -1210,7 +1450,10 @@
       </tr>
       <tr>
          <td><strong>{msg desc="label on  overview header"}Email{/msg}</strong></td>
-         <td>{$msg_customer_detail['Email']}</td>
+         <td>
+           <span id="account-overview-email">{$msg_customer_detail['Email']}</span>
+           &nbsp;<button data-action="CHANGE_EMAIL" class="btn btn-warning btn-mini">Change</button>
+         </td>
       </tr>
       <tr>
          <td><strong>{msg desc="label on  overview header"}State{/msg}</strong></td>
@@ -1242,6 +1485,14 @@
          </td>
       </tr>
       <tr>
+         <td><strong>{msg desc="label on overview header"}Has two step authentication on email{/msg}</strong></td>
+         <td class="account-overview-val account-overview-two-factors-email" >
+          {call .AccountOverviewHeaderEmailTwoFactors}
+            {param msg_customer_detail: $msg_customer_detail /}
+          {/call}
+         </td>
+      </tr>
+      <tr>
          <td><strong>{msg desc="label on  overview header"}Registration date{/msg}</strong></td>
          <td>{$msg_customer_detail['Created']}</td>
       </tr>
@@ -1260,55 +1511,13 @@
 
 
 /**
-  * @param msg_customer_detail
-  */
-{template .AccountOverviewUser}
-  <table class="table table-striped table-condensed account-overview-table" style="width: 350px">
-    <tbody>
-      <tr>
-        <td><strong>{msg desc="label on overview header"}ID{/msg}</strong></td>
-        <td>{$msg_customer_detail['ID']}</td>
-      </tr>
-      <tr>
-        <td><strong>{msg desc="label on  overview header"}Username{/msg}</strong></td>
-        <td>{$msg_customer_detail['Username']}</td>
-      </tr>
-      <tr>
-         <td><strong>{msg desc="label on  overview header"}Email{/msg}</strong></td>
-         <td>{$msg_customer_detail['Email']}</td>
-      </tr>
-      <tr>
-         <td><strong>{msg desc="label on  overview header"}State{/msg}</strong></td>
-         <td>{$msg_customer_detail['State']}</td>
-      </tr>
-      <tr>
-         <td><strong>{msg desc="label on  overview header"}Country{/msg}</strong></td>
-         <td>{$msg_customer_detail['CountryCode']}</td>
-      </tr>
-      <tr>
-         <td><strong>{msg desc="label on  overview header"}Is verified{/msg}</strong></td>
-         <td class="account-overview-val account-overview-verified">
-            {switch $msg_customer_detail['Verified'] }
-              {case 0}
-                <span class="label label-important">{msg desc="label on  overview header"}No{/msg}</span>
-              {case 1}
-                <span class="label label-important">{msg desc="label on  overview header"}Pending{/msg}</span>
-              {case 2}
-                <span class="label label-success">{msg desc="label on  overview header"}Yes{/msg}</span>
-              {case 3}
-                <span class="label label-success">{msg desc="label on  overview header"}Yes - Level II{/msg}</span>
-              {case 4}
-                <span class="label label-success">{msg desc="label on  overview header"}Yes - Level III{/msg}</span>
-              {case 5}
-                <span class="label label-success">{msg desc="label on  overview header"}Yes - Level IV{/msg}</span>
-            {/switch}
-         </td>
-      </tr>
-    </tbody>
-  </table>
+ * @param dataRow
+ */
+{template .CustomerDetailButton}
+  <button class="btn btn-mini btn-primary btn-deposit" data-row="{$dataRow}">
+    {msg desc="details"}details{/msg}
+  </button>
 {/template}
-
-
 
 /**
   * @param clientID

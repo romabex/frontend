@@ -2,11 +2,14 @@ goog.provide('bitex.ui.OrderManager');
 goog.provide('bitex.ui.OrderManager.Status');
 goog.provide('bitex.ui.OrderManagerEvent');
 
+goog.require('bitex.ui.OrderManager.templates');
+
 goog.require('goog.dom');
 goog.require('goog.object');
 goog.require('bitex.ui.DataGrid');
 goog.require('goog.ui.registry');
 
+goog.require('bitex.util');
 goog.require('goog.dom.TagName');
 
 
@@ -120,22 +123,27 @@ var MSG_ORDER_MANAGER_STATUS_REJECTED = goog.getMsg('Rejected');
 /**
  * @param {string=} opt_mode. Defaults to advanced mode
  * @param {boolean=} opt_openOrdersTitle.
+ * @param {string=} opt_filterOrder
  * @param {number=} opt_blinkDelay. Defaults to 700 milliseconds
  * @param {goog.dom.DomHelper=} opt_domHelper
  * @constructor
  * @extends {goog.ui.Component}
  */
-bitex.ui.OrderManager = function(opt_mode, opt_openOrdersTitle, opt_blinkDelay, opt_domHelper) {
+bitex.ui.OrderManager = function(opt_mode, opt_openOrdersTitle, opt_filterOrder, opt_blinkDelay, opt_domHelper) {
   this.mode_ = opt_mode || 'advanced';
   this.blink_delay_ = opt_blinkDelay || 700;
+  this.filter_order_ = opt_filterOrder || 'OECA';
+
 
   var grid_columns_simple = [
     {
-      'property': 'OrderID',
-      'label': MSG_ORDER_MANAGER_ACTIVITY_TABLE_COLUMN_ID,
+      'property': 'OrderDate',
+      'label': MSG_ORDER_MANAGER_ACTIVITY_TABLE_COLUMN_ORDER_DATE,
       'sortable': false,
-      'formatter': function(s, rowSet) { return rowSet['ClOrdID']},
-      'classes': function() { return goog.getCssName(bitex.ui.OrderManager.CSS_CLASS, 'order-id'); }
+      'formatter': function(s, rowSet) {
+        return  bitex.util.convertServerUTCDateTimeStrToTimestamp(s.substr(0, 10), s.substr(11)).toLocaleString();
+      },
+      'classes': function() { return goog.getCssName(bitex.ui.OrderManager.CSS_CLASS, 'order-date'); }
     },{
       'property': 'Side',
       'label': MSG_ORDER_MANAGER_ACTIVITY_TABLE_COLUMN_DESCRIPTION,
@@ -163,29 +171,30 @@ bitex.ui.OrderManager = function(opt_mode, opt_openOrdersTitle, opt_blinkDelay, 
       'label': MSG_ORDER_MANAGER_ACTIVITY_TABLE_COLUMN_ACTIONS,
       'sortable': false,
       'formatter': function(id, row_set_obj){
-        var classes = "btn btn-mini btn-danger";
-        var attributes = { 'class':classes, 'data-action':'cancel', 'data-client-order-id': id } ;
+        var attributes = { dataClientOrderId: id, dataOrderId:null } ;
 
         if ( goog.isDefAndNotNull(row_set_obj) ) {
-          attributes['data-order-id'] = row_set_obj["OrderID"];
-
+          attributes = { dataClientOrderId: id, dataOrderId:row_set_obj["OrderID"]} ;
           if (row_set_obj["LeavesQty"] == 0) {
             return "";
           }
         }
 
-        return goog.dom.createDom( 'a', attributes, MSG_ORDER_MANAGER_ACTION_CANCEL_ORDER );
+        return goog.soy.renderAsElement(bitex.ui.OrderManager.templates.CancelOrder, attributes);
       },
       'classes': function() { return goog.getCssName(bitex.ui.OrderManager.CSS_CLASS, 'actions'); }
     }
   ];
 
   var grid_columns_advanced = [
-    {
-      'property': 'OrderID',
-      'label': MSG_ORDER_MANAGER_ACTIVITY_TABLE_COLUMN_ID,
+     {
+      'property': 'OrderDate',
+      'label': MSG_ORDER_MANAGER_ACTIVITY_TABLE_COLUMN_ORDER_DATE,
       'sortable': false,
-      'classes': function() { return goog.getCssName(bitex.ui.OrderManager.CSS_CLASS, 'order-id'); }
+      'formatter': function(s, rowSet) {
+        return  bitex.util.convertServerUTCDateTimeStrToTimestamp(s.substr(0, 10), s.substr(11)).toLocaleString();
+      },
+      'classes': function() { return goog.getCssName(bitex.ui.OrderManager.CSS_CLASS, 'order-date'); }
     },{
       'property': 'OrdStatus',
       'label': MSG_ORDER_MANAGER_ACTIVITY_TABLE_COLUMN_STATUS,
@@ -239,18 +248,16 @@ bitex.ui.OrderManager = function(opt_mode, opt_openOrdersTitle, opt_blinkDelay, 
       'label': MSG_ORDER_MANAGER_ACTIVITY_TABLE_COLUMN_ACTIONS,
       'sortable': false,
       'formatter': function(id, row_set_obj){
-        var classes = "btn btn-mini btn-danger";
-        var attributes = { 'class':classes, 'data-action':'cancel', 'data-client-order-id': id } ;
+        var attributes = { dataClientOrderId: id, dataOrderId:null } ;
 
         if ( goog.isDefAndNotNull(row_set_obj) ) {
-          attributes['data-order-id'] = row_set_obj["OrderID"];
-
+          attributes = { dataClientOrderId: id, dataOrderId:row_set_obj["OrderID"]} ;
           if (row_set_obj["LeavesQty"] == 0) {
             return "";
           }
         }
 
-        return goog.dom.createDom( 'a', attributes, MSG_ORDER_MANAGER_ACTION_CANCEL_ORDER );
+        return goog.soy.renderAsElement(bitex.ui.OrderManager.templates.CancelOrder, attributes);
       },
       'classes': function() { return goog.getCssName(bitex.ui.OrderManager.CSS_CLASS, 'actions'); }
     }
@@ -291,13 +298,26 @@ bitex.ui.OrderManager = function(opt_mode, opt_openOrdersTitle, opt_blinkDelay, 
     'columns': grid_columns_advanced,
     'title': MSG_ORDER_MANAGER_TABLE_TITLE,
     'showSearch': false,
-    'buttonFilters': [
-      { 'label': MSG_ORDER_MANAGER_TABLE_BUTTON_FILTER_OPEN_ORDERS, 'value': 'has_leaves_qty eq 1'},
-      { 'label': MSG_ORDER_MANAGER_TABLE_BUTTON_FILTER_FILLED,      'value': 'has_cum_qty eq 1'},
-      { 'label': MSG_ORDER_MANAGER_TABLE_BUTTON_FILTER_CANCELED,    'value': 'has_cxl_qty eq 1'},
-      { 'label': MSG_ORDER_MANAGER_TABLE_BUTTON_FILTER_ALL,         'value': 'all'}
-    ]
+    'buttonFilters': []
   };
+
+  var getFilterButton = function(button_type){
+    switch (button_type){
+      case 'A':
+        return { 'label': MSG_ORDER_MANAGER_TABLE_BUTTON_FILTER_ALL,         'value': 'all'};
+      case 'O':
+        return { 'label': MSG_ORDER_MANAGER_TABLE_BUTTON_FILTER_OPEN_ORDERS, 'value': 'has_leaves_qty eq 1'};
+      case 'E':
+        return { 'label': MSG_ORDER_MANAGER_TABLE_BUTTON_FILTER_FILLED,      'value': 'has_cum_qty eq 1'};
+      case 'C':
+        return { 'label': MSG_ORDER_MANAGER_TABLE_BUTTON_FILTER_CANCELED,    'value': 'has_cxl_qty eq 1'};
+    }
+  };
+
+  for (var i in this.filter_order_) {
+    var button_filter_type =  this.filter_order_[i];
+    options['buttonFilters'].push(getFilterButton(button_filter_type));
+  }
 
   if (opt_openOrdersTitle) {
     options['title'] = MSG_ORDER_MANAGER_TABLE_TITLE_OPEN_ORDERS;

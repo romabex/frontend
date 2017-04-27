@@ -36,12 +36,60 @@ exchanges:
     description:  Cumpărați și vindeți Bitcoin în România
     keywords: Buy and sell bitcoin in Romania, bitcoin exchange in Romania, sell bitcoins in Romania, buy bitcoins in Romania,cumpara si vinde Bitcoin in Romania, schimba Bitcoin Romania
     lead: Cumpărați și vindeți Bitcoin în România
+  bitcoinvietnam:
+    title: VBTC -  //Cumpărați și vindeți Bitcoin în Vietnam 
+    description:  Cumpărați și vindeți Bitcoin în Vietnam
+    keywords: Buy and sell bitcoin in China, bitcoin exchange in Vietnam, sell bitcoins in Vietnam, buy bitcoins in Vietnam,cumpara si vinde Bitcoin in Vietnam, schimba Bitcoin Vietnam 
+    lead: Cumpărați și vindeți Bitcoin în Vietnam
   yuanbit:
     title: YuanBit.com -  //Cumpărați și vindeți Bitcoin în China
     description:  Cumpărați și vindeți Bitcoin în China
     keywords: Buy and sell bitcoin in China, bitcoin exchange in China, sell bitcoins in China, buy bitcoins in China,cumpara si vinde Bitcoin in China, schimba Bitcoin China
     lead: Cumpărați și vindeți Bitcoin în China
+  bitinvest:
+    title: Bitinvest - Bitcoin rápido, fácil e seguro - Comprar e Vender Bitcoin com as menores taxas do Brasil
+    description: Bitinvest - Bitcoin rápido, fácil e seguro - Comprar e Vender Bitcoin com as menores taxas do Brasil
+    keywords: Bitinvest - Bitcoin rápido, fácil e seguro - Comprar e Vender Bitcoin com as menores taxas do Brasil
+    lead: Bitcoin rápido, fácil e seguro - Comprar e Vender Bitcoin com as menores taxas do Brasil
+  unocoin:
+    title: Unocoin | India's Bitcoin Wallet
+    description: Unocoin is India's most popular bitcoin wallet. We make it super easy to securely buy, use and accept bitcoin, following KYC-AML guidelines.
+    keywords: bitcoin, buy bitcoin, sell bitcoin, buy bitcoin india, sell bitcoin india, bitcoin india, bitcoin inr, btc inr, bitcoin wallet india, store bitcoin india, buy bitcoin inr, sell bitcoin inr, send bitcoin, send bitcoin india, receive bitcoin, receive bitcoin india, bitcoin price, btc to inr, btc price in inr, bitcoin exchange
+    lead: Unocoin is india's most popular bitcoin wallet
 views:
+  landing:
+    about:
+      learn: Learn More
+      phrase1:
+        title: Easy and Fast
+        icon: ico-tradewithus
+        description: We strive for simplicity. We work hard to make it easy for you to buy and sell and use advanced features like <a href="https://github.com/blinktrade/algorithm-trading" target="_BLANK">open source trading algorithms</a>, even if you are completely new to trading. All of our deposits and withdrawals are processed instantly so that you can get your bitcoins in less than 1 minute.
+      phrase2:
+        title: 100% Transparency
+        icon: ico-secure
+        description: Our dedication to transparency includes our source code which is <a href="https://github.com/blinktrade/frontend/" target="_BLANK">100% open source</a> so that everyone can analyze it and help us look for weaknesses in our security. Our hot and cold wallets are also public so you can do your own solvency check of our exchanges any time directly on the blockchain.
+      phrase3:
+        title: Maecenas vel magna
+        icon: ico-liquidity
+        description: Donec ac tincidunt enim, quis porttitor massa. Sed vulputate ex at quam venenatis, non facilisis justo vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi diam nisl, congue vehicula maximus eget, tempor nec ipsum. Vestibulum feugiat consequat lacus et congue. Phasellus eu felis vel dui cursus pharetra quis non lectus. Curabitur porta ultrices magna sit amet ultrices. Nam cursus lorem mollis arcu dignissim congue. Praesent vitae venenatis lorem, sit amet efficitur ipsum.
+      phrase4:
+        title: Member of BLINKTRADE
+        icon: ico-decentralized
+        description: We are a member of the global <a href="https://blinktrade.com" target="_BLANK">BlinkTrade network</a>, that includes <a href="https://foxbit.com.br" target="_BLANK">FoxBit</a> in Brazil, <a href="https://surbitcoin.com/themes/coinage/" target="_BLANK">SurBitcoin</a> in Venezuela, <a href="https://chilebit.net/" target="_BLANK">ChileBit.NET</a> in Chile, <a href="https://urdubit.com/" target="_BLANK">UrduBit</a> in Pakistan and <a href="https://vbtc.vn/" target="_BLANK">VBTC</a> in Vietnam among other companies, market makers, remittance agencies and payment processors. Through our platform you will have access to this global network of exchanges and will be able to navigate all of them in the language of your choice
+    orderbook:
+      title: Live Order Book
+    signup:
+      title: CREATE YOUR ACCOUNT NOW
+      description: Sign up and discover how easy it is to trade with us.
+  footer:
+    about: About
+    company: Company
+    platform: Platform
+    blog: Blog
+    chart: Chart
+    latency: Latency
+    version: Version
+
   toolbar:
     faq: Întrebări frecvente
     trading: Tranzacționare
@@ -49,8 +97,14 @@ views:
     signin: Autentificare
     signup: Cont nou
     connect: Autentificare
+    high: SUS
+    last: ULTIMUL
+    low: JOS
+    volume: VOLUM
 
   start:
+    bid: Cumpăra
+    ask: Vinde
     username: "Nume utilizator:"
     password: "Parola:"
     login: Autentificare
@@ -119,6 +173,9 @@ views:
     cumulative: A acumulat
     fees: Taxe
 
+  admin:
+    title: Admin
+
   customers:
     title: Clienții mei
 
@@ -132,6 +189,9 @@ views:
   withdraw_requests:
     title: Solicitări de retragere
 
+  withdraw_methods:
+    title: Withdraw methods
+
   deposit:
     title: Depunerile mele
 
@@ -140,6 +200,10 @@ views:
 
   ledger:
     title: Registru
+
+  api:
+    title: API Keys
+    new_api_key: New API Key
 
   algotrading:
     title: Tranzacționarea algoritmică
@@ -158,20 +222,44 @@ views:
     enable_two_factor: Puteți crește securitatea contului dvs. prin activarea autentificare în doi pasi.
     frozen_account: Contul nostru a fost oprit de către administrator, vă rugăm să contactați echipa de suport.
 
+  line_of_credit:
+    title: Linie de credit
+
+  history:
+    title: Orders history
+
+  partners:
+    title: Utilizați Bitcoins dvs.
+    more: Mai
+    purseio:
+      title: Purse.io
+      description: Salvați 15% Off Amazon cu Bitcoin
+
   sidebar:
+    admin: Admin
     market: "Moneda de schimb :"
+    navigation: Navigare
     menu: Meniu
     my_profile: Profilul meu
     my_broker: Despre exchange
     trading: Cumpără sau Vinde
     offerbook: Registrul de comenzi
     ledger: Registru
+    partners: Utilizați Bitcoins dvs.
     customers: Clienți mei
     deposit_requests: Cerere de depunere
     withdraw_requests: Cerere de retragere
     deposit: Depunerile mele
     withdraw: Retragerile mele
     verification: Verificați-va contul
+    line_of_credit: Linie de credit
     support: Sugestii & Support
+    api: API
     logout: Delogare
     algotrading: Algo Trading
+    history: Orders history
+    card:  Blink Card
+  themes:
+    title: Themes
+    choose: Choose a Theme
+

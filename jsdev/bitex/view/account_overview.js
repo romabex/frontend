@@ -1,7 +1,7 @@
 goog.provide('bitex.view.AccountOverview');
 
 goog.require('bitex.view.View');
-
+goog.require('bitex.ui.Dialog');
 goog.require('bitex.ui.WithdrawList');
 goog.require('bitex.ui.DepositList');
 goog.require('bitex.templates');
@@ -9,6 +9,7 @@ goog.require('goog.style');
 goog.require('goog.string');
 goog.require('goog.array');
 goog.require('goog.soy');
+goog.require('bitex.util');
 
 /**
  * @param {*} app
@@ -258,51 +259,21 @@ bitex.view.AccountOverview.prototype.getContentElement = function() {
 };
 
 /**
- * @param {string} raw_verification_data
+ * @param {string|Array.<Object.<*>>} raw_verification_data
  * @private
  */
-bitex.view.AccountOverview.prototype.formatVerificationData_ = function(raw_verification_data) {
-  var formatted_data = raw_verification_data;
+bitex.view.AccountOverview.prototype.formatVerificationData_ = function(verification_data) {
+  if (goog.isString(verification_data)) {
+    try {
+      verification_data = goog.json.parse(verification_data);
+    } catch(e){}
+  }
+
+  var formatted_data = "";
   try {
-    var verification_data = goog.json.parse(raw_verification_data);
-    formatted_data = '<table class="table table-striped table-condensed">';
-    goog.array.forEach(verification_data, function(verification_obj) {
-      goog.object.forEach(verification_obj, function(data, key) {
-        formatted_data += '<tr><td>';
-        if (key != 'data') {
-          formatted_data += key;
-        }
-        formatted_data += '</td> <td>';
-        if (key == 'data') {
-          formatted_data +=  data;
-        } else if (key == 'uploaded_files') {
-          if (goog.isArray(data)) {
-            goog.array.forEach(data, function(data_line) {
-              if ( goog.isDefAndNotNull(data_line.match(/\.(jpg|jpeg|png|gif)$/))) {
-                formatted_data += ' <a href="#" data-action="file-view" data-filename="' + data_line + '" class="btn btn-mini btn-info" >' +
-                    '<i data-action="file-view" data-filename="' + data_line + '"  class="icon-white icon-eye-open"></i></a> ';
-              } else {
-                formatted_data += ' <a href="' + data_line + '" class="btn btn-mini btn-info" "target":"blank" >' +
-                    '<i class="icon-white icon-file"></i></a> ';
-              }
-            }, this);
-          }
-        } else if (goog.isArray(data)) {
-          goog.array.forEach(data, function(data_line) {
-            formatted_data += data_line + '<br/>';
-          }, this);
-        } else if (goog.isObject(data)) {
-          goog.object.forEach(data, function(data_line_data, data_line_key) {
-            formatted_data += data_line_key + ':'  + data_line_data + '<br/>';
-          }, this);
-        } else {
-          formatted_data +=  data;
-        }
-        formatted_data += '</td></tr>';
-      }, this  );
-    }, this );
-    formatted_data += '</table>';
+    formatted_data = bitex.util.verificationData2HTML(verification_data);
   } catch(e){}
+
   return formatted_data;
 };
 
@@ -397,7 +368,7 @@ bitex.view.AccountOverview.prototype.recreateComponents_ = function(customer) {
 
 
   handler.listen(this.getApplication().getBitexConnection(),
-                 bitex.api.BitEx.EventType.BALANCE_RESPONSE,
+                 bitex.api.BitEx.EventType.BALANCE_RESPONSE + '.' + this.request_id_,
                  this.onBalanceResponse_);
 
   this.addChild(this.deposit_list_table_, true);
@@ -431,7 +402,7 @@ bitex.view.AccountOverview.prototype.recreateComponents_ = function(customer) {
   handler.listen(this.getElement(), goog.events.EventType.CHANGE, this.onElementChange_ );
   handler.listen(this.getElement(), goog.events.EventType.CLICK, this.onViewClick_);
 
-  this.getApplication().getBitexConnection().requestBalances( customer['ID'] );
+  this.getApplication().getBitexConnection().requestBalances( customer['ID'], this.request_id_ );
 
 
   this.recreateUserFeeComponents_(customer);
@@ -444,6 +415,8 @@ bitex.view.AccountOverview.prototype.recreateComponents_ = function(customer) {
 bitex.view.AccountOverview.prototype.recreateUserFeeComponents_ = function(customer) {
   var buy_fee = customer['TransactionFeeBuy'];
   var sell_fee = customer['TransactionFeeSell'];
+  var taker_buy_fee = customer['TakerTransactionFeeBuy'];
+  var taker_sell_fee = customer['TakerTransactionFeeSell'];
 
   var fmt = new goog.i18n.NumberFormat( goog.i18n.NumberFormat.Format.PERCENT);
   fmt.setMaximumFractionDigits(8);
@@ -452,14 +425,22 @@ bitex.view.AccountOverview.prototype.recreateUserFeeComponents_ = function(custo
   if (goog.isDefAndNotNull(buy_fee) ) {
     buy_fee = fmt.format(buy_fee / 10000);
   }
+  if (goog.isDefAndNotNull(taker_buy_fee) ) {
+    taker_buy_fee = fmt.format(taker_buy_fee / 10000);
+  }
 
   if (goog.isDefAndNotNull(sell_fee) ) {
     sell_fee = fmt.format(sell_fee / 10000);
+  }
+  if (goog.isDefAndNotNull(taker_sell_fee) ) {
+    taker_sell_fee = fmt.format(taker_sell_fee / 10000);
   }
 
   var account_overview_fees_balances_el = goog.dom.getElement('account_overview_fees_balances_id');
 
   goog.soy.renderElement(account_overview_fees_balances_el,bitex.templates.YourFeesBalances, {
+      taker_buy_fee: taker_buy_fee,
+      taker_sell_fee: taker_sell_fee,
       buy_fee: buy_fee,
       sell_fee: sell_fee
   });
@@ -678,17 +659,32 @@ bitex.view.AccountOverview.prototype.onBtnUserFeesClick_ = function(e) {
   fmt.setMinimumFractionDigits(2);
 
   var buy_fee = selectedCustomer['TransactionFeeBuy'];
+  var taker_buy_fee = selectedCustomer['TakerTransactionFeeBuy'];
   var sell_fee = selectedCustomer['TransactionFeeSell'];
+  var taker_sell_fee = selectedCustomer['TakerTransactionFeeSell'];
 
   if (goog.isDefAndNotNull(buy_fee) ) {
     buy_fee = fmt.format(buy_fee / 100);
   }
+  if (goog.isDefAndNotNull(taker_buy_fee) ) {
+    taker_buy_fee = fmt.format(taker_buy_fee / 100);
+  }
+
 
   if (goog.isDefAndNotNull(sell_fee) ) {
     sell_fee = fmt.format(sell_fee / 100);
   }
+  if (goog.isDefAndNotNull(taker_sell_fee) ) {
+    taker_sell_fee = fmt.format(taker_sell_fee / 100);
+  }
 
-  var dlg_content = bitex.templates.UserFeesDialogContent({id: "id_user_fees", buy_fee:buy_fee, sell_fee:sell_fee});
+
+  var dlg_content = bitex.templates.UserFeesDialogContent({id: "id_user_fees",
+                                                            buy_fee:buy_fee,
+                                                            sell_fee:sell_fee,
+                                                            taker_buy_fee:taker_buy_fee,
+                                                            taker_sell_fee:taker_sell_fee
+                                                          });
 
   /**
    * @desc user custom fees
@@ -697,7 +693,7 @@ bitex.view.AccountOverview.prototype.onBtnUserFeesClick_ = function(e) {
 
   var userFeesDialog = this.getApplication().showDialog(dlg_content,
                                                    MSG_USER_FEES_DIALOG_TITLE,
-                                                   bootstrap.Dialog.ButtonSet.createOkCancel());
+                                                   bitex.ui.Dialog.ButtonSet.createOkCancel());
 
   if (goog.isDefAndNotNull(buy_fee)) {
     goog.dom.getElement('id_user_fees_buy_fee').disabled = false;
@@ -710,6 +706,18 @@ bitex.view.AccountOverview.prototype.onBtnUserFeesClick_ = function(e) {
     goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_buy_fee'), 'None' );
   }
 
+  if (goog.isDefAndNotNull(taker_buy_fee)) {
+    goog.dom.getElement('id_user_fees_taker_buy_fee').disabled = false;
+    goog.dom.getElement('id_user_fees_broker_taker_buy_fee').checked = false;
+    goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_taker_buy_fee'), taker_buy_fee );
+  }
+  else {
+    goog.dom.getElement('id_user_fees_taker_buy_fee').disabled = true;
+    goog.dom.getElement('id_user_fees_broker_taker_buy_fee').checked = true;
+    goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_taker_buy_fee'), 'None' );
+  }
+
+
   if (goog.isDefAndNotNull(sell_fee)) {
     goog.dom.getElement('id_user_fees_sell_fee').disabled = false;
     goog.dom.getElement('id_user_fees_broker_sell_fee').checked = false;
@@ -719,6 +727,17 @@ bitex.view.AccountOverview.prototype.onBtnUserFeesClick_ = function(e) {
     goog.dom.getElement('id_user_fees_sell_fee').disabled = true;
     goog.dom.getElement('id_user_fees_broker_sell_fee').checked = true;
     goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_sell_fee'), 'None' );
+  }
+
+  if (goog.isDefAndNotNull(taker_sell_fee)) {
+    goog.dom.getElement('id_user_fees_taker_sell_fee').disabled = false;
+    goog.dom.getElement('id_user_fees_broker_taker_sell_fee').checked = false;
+    goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_taker_sell_fee'), sell_fee );
+  }
+  else {
+    goog.dom.getElement('id_user_fees_taker_sell_fee').disabled = true;
+    goog.dom.getElement('id_user_fees_broker_taker_sell_fee').checked = true;
+    goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_taker_sell_fee'), 'None' );
   }
 
   var handler = this.getHandler();
@@ -741,6 +760,24 @@ bitex.view.AccountOverview.prototype.onBtnUserFeesClick_ = function(e) {
 
   });
 
+  handler.listen(goog.dom.getElement("id_user_fees_broker_taker_buy_fee" ), goog.events.EventType.CLICK, function(e) {
+
+        if (e.target.checked) {
+            goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_taker_buy_fee'), 'None' );
+            goog.dom.getElement('id_user_fees_taker_buy_fee').disabled = true;
+        }
+        else {
+            if (goog.isDefAndNotNull(taker_buy_fee)) {
+                goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_taker_buy_fee'), taker_buy_fee );
+            }
+            else {
+              goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_taker_buy_fee'), '0' );
+            }
+            goog.dom.getElement('id_user_fees_taker_buy_fee').disabled = false;
+        }
+
+  });
+
   handler.listen(goog.dom.getElement("id_user_fees_broker_sell_fee" ), goog.events.EventType.CLICK, function(e) {
 
         if (e.target.checked) {
@@ -759,9 +796,29 @@ bitex.view.AccountOverview.prototype.onBtnUserFeesClick_ = function(e) {
 
   });
 
+  handler.listen(goog.dom.getElement("id_user_fees_broker_taker_sell_fee" ), goog.events.EventType.CLICK, function(e) {
+
+        if (e.target.checked) {
+            goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_taker_sell_fee'), 'None' );
+            goog.dom.getElement('id_user_fees_taker_sell_fee').disabled = true;
+        }
+        else {
+            if (goog.isDefAndNotNull(sell_fee)) {
+                goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_taker_sell_fee'), taker_sell_fee );
+            }
+            else {
+              goog.dom.forms.setValue( goog.dom.getElement('id_user_fees_taker_sell_fee'), '0' );
+            }
+            goog.dom.getElement('id_user_fees_taker_sell_fee').disabled = false;
+        }
+
+  });
+
   handler.listenOnce(userFeesDialog, goog.ui.Dialog.EventType.SELECT, function(e) {
     if (e.key == 'ok') {
 
+      var taker_fee_buy_text = goog.dom.forms.getValue( goog.dom.getElement("id_user_fees_taker_buy_fee" ) );
+      var taker_fee_sell_text = goog.dom.forms.getValue( goog.dom.getElement("id_user_fees_taker_sell_fee" ) );
       var fee_buy_text = goog.dom.forms.getValue( goog.dom.getElement("id_user_fees_buy_fee" ) );
       var fee_sell_text = goog.dom.forms.getValue( goog.dom.getElement("id_user_fees_sell_fee" ) );
 
@@ -773,6 +830,13 @@ bitex.view.AccountOverview.prototype.onBtnUserFeesClick_ = function(e) {
         buy_fee_value = buy_fee_value * 100;
       }
 
+      pos = [0];
+      var taker_buy_fee_value = fmt.parse(taker_fee_buy_text, pos);
+      if (pos[0] != taker_fee_buy_text.length || isNaN(taker_buy_fee_value) || taker_buy_fee_value <= 0 ) {
+        taker_buy_fee_value = null;
+      } else {
+        taker_buy_fee_value = taker_buy_fee_value * 100;
+      }
 
       pos = [0];
       var sell_fee_value = fmt.parse(fee_sell_text, pos);
@@ -782,12 +846,26 @@ bitex.view.AccountOverview.prototype.onBtnUserFeesClick_ = function(e) {
         sell_fee_value = sell_fee_value * 100;
       }
 
+      pos = [0];
+      var taker_sell_fee_value = fmt.parse(taker_fee_sell_text, pos);
+      if (pos[0] != taker_fee_sell_text.length || isNaN(taker_sell_fee_value) || taker_sell_fee_value <= 0 ) {
+        taker_sell_fee_value = null;
+      } else {
+        taker_sell_fee_value = taker_sell_fee_value * 100;
+      }
+
+
       var selectedCustomer = this.getApplication().getModel().get('SelectedCustomer');
 
       var conn = this.getApplication().getBitexConnection();
 
       this.client_id_ =  goog.string.toNumber(selectedCustomer['ID']);
-      this.update_profile_data_ = { 'TransactionFeeBuy': buy_fee_value, 'TransactionFeeSell': sell_fee_value };
+      this.update_profile_data_ = {
+        'TakerTransactionFeeBuy': taker_buy_fee_value,
+        'TakerTransactionFeeSell': taker_sell_fee_value,
+        'TransactionFeeBuy': buy_fee_value,
+        'TransactionFeeSell': sell_fee_value
+      };
       this.dispatchEvent(bitex.view.View.EventType.UPDATE_PROFILE);
     }
   }, this);
@@ -811,7 +889,9 @@ bitex.view.AccountOverview.prototype.onUpdateSelectedCustomer_ = function(e) {
 
 
   if (previous_data['TransactionFeeBuy']  !== new_data['TransactionFeeBuy'] ||
-      previous_data['TransactionFeeSell']  !== new_data['TransactionFeeSell']) {
+      previous_data['TakerTransactionFeeBuy']  !== new_data['TakerTransactionFeeBuy'] ||
+      previous_data['TransactionFeeSell']  !== new_data['TransactionFeeSell'] ||
+      previous_data['TakerTransactionFeeSell']  !== new_data['TakerTransactionFeeSell']) {
     this.recreateUserFeeComponents_(new_data);
   }
 
@@ -827,6 +907,21 @@ bitex.view.AccountOverview.prototype.onUpdateSelectedCustomer_ = function(e) {
 
     goog.dom.removeChildren(new_data_parent_el);
     goog.dom.appendChild(new_data_parent_el, new_data_el);
+  }
+
+  if (previous_data['EmailTwoFactorEnabled']  !== new_data['EmailTwoFactorEnabled']) {
+    new_data_el = soy.renderAsElement( bitex.templates.AccountOverviewHeaderEmailTwoFactors,
+        { msg_customer_detail: {'EmailTwoFactorEnabled' : new_data['EmailTwoFactorEnabled'] } } );
+
+    new_data_parent_el = goog.dom.getElementByClass('account-overview-two-factors-email',
+                                                    goog.dom.getElement('account_overview_header_id') );
+
+    goog.dom.removeChildren(new_data_parent_el);
+    goog.dom.appendChild(new_data_parent_el, new_data_el);
+  }
+
+  if (previous_data['Email'] !== new_data['Email']) {
+    goog.dom.getElement('account-overview-email').innerHTML = new_data['Email'];
   }
 
   if (previous_data['NeedWithdrawEmail']  !== new_data['NeedWithdrawEmail']) {
@@ -864,7 +959,20 @@ bitex.view.AccountOverview.prototype.onAccountOverviewHeaderClick_ = function(e)
         this.update_profile_data_ = { 'TwoFactorEnabled': false };
         this.dispatchEvent(bitex.view.View.EventType.UPDATE_PROFILE);
         break;
-
+      case 'ENABLE_EMAIL_TWO_FACTOR':
+        this.client_id_ =  goog.string.toNumber(selectedCustomer['ID']);
+        this.update_profile_data_ = { 'EmailTwoFactorEnabled': true };
+        this.dispatchEvent(bitex.view.View.EventType.UPDATE_PROFILE);
+        break;
+      case 'DISABLE_EMAIL_TWO_FACTOR':
+        this.client_id_ =  goog.string.toNumber(selectedCustomer['ID']);
+        this.update_profile_data_ = { 'EmailTwoFactorEnabled': false };
+        this.dispatchEvent(bitex.view.View.EventType.UPDATE_PROFILE);
+        break;
+      case 'CHANGE_EMAIL':
+        this.client_id_ = goog.string.toNumber(selectedCustomer['ID']);
+        this.dispatchEvent(bitex.view.View.EventType.CHANGE_EMAIL);
+        break;
       case 'SET_WITHDRAW_EMAIL':
         this.client_id_ =  selectedCustomer['ID'];
         this.client_id_ =  goog.string.toNumber(selectedCustomer['ID']);
@@ -880,7 +988,7 @@ bitex.view.AccountOverview.prototype.onAccountOverviewHeaderClick_ = function(e)
 
         var dlg = this.getApplication().showDialog(dlg_content,
                                                    MSG_VERIFICATION_DATA_DIALOG_TITLE,
-                                                   bootstrap.Dialog.ButtonSet.createOkCancel());
+                                                   bitex.ui.Dialog.ButtonSet.createOkCancel());
         handler.listen(dlg, goog.ui.Dialog.EventType.SELECT, function(e) {
           if (e.key == 'ok') {
             e.preventDefault();
@@ -958,10 +1066,7 @@ bitex.view.AccountOverview.prototype.onDepositListTableClick_ = function(e) {
 
     switch( data_action ) {
       case 'SHOW_RECEIPT':
-        this.receipt_data_ = {
-          'SubmissionID': this.data_['Data']['SubmissionID'],
-          'DepositReceipt': this.data_['Data']['DepositReceipt']
-        };
+        this.receipt_data_ = goog.object.unsafeClone(this.deposit_data_['Data']);
         this.dispatchEvent(bitex.view.View.EventType.SHOW_RECEIPT);
         break;
       case 'SHOW_QR':

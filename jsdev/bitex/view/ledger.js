@@ -55,7 +55,7 @@ bitex.view.LedgerView.prototype.destroyComponents_ = function( ) {
                      this.onLedgerTableRequestData_);
 
     handler.unlisten(this.getApplication().getBitexConnection(),
-                     bitex.api.BitEx.EventType.ORDER_LIST_RESPONSE,
+                     bitex.api.BitEx.EventType.LEDGER_LIST_RESPONSE + '.' + this.request_id_,
                      this.onLedgerListResponse_);
 
   }
@@ -125,6 +125,13 @@ bitex.view.LedgerView.prototype.recreateComponents_ = function() {
     }, this );
 
 
+    goog.object.forEach(model.get('Profile')['AllowedMarkets'], function(market, symbol) {
+      button_filters.push(
+          {
+            'label': MSG_MY_CUSTOMERS_LABEL + ':' + this.getApplication().getCurrencyDescription('MMP_' + symbol),
+            'value':goog.json.serialize( {'currency':'MMP_' + symbol, 'broker_id':model.get('UserID') } )
+          });
+     }, this);
 
   } else {
     goog.array.forEach(model.get('BrokerCurrencies'), function(currency_code){
@@ -134,6 +141,16 @@ bitex.view.LedgerView.prototype.recreateComponents_ = function() {
             'value':goog.json.serialize( {'currency':currency_code, 'broker_id':model.get('Broker')['BrokerID']  } )
           });
     }, this );
+
+    if (model.get('ShowMMP')) {
+      goog.object.forEach(model.get('Broker')['AllowedMarkets'], function(market, symbol) {
+        button_filters.push(
+            {
+              'label':this.getApplication().getCurrencyDescription('MMP_' + symbol),
+              'value':goog.json.serialize( {'currency':'MMP_' + symbol, 'broker_id':model.get('Broker')['BrokerID']  } )
+            });
+       }, this);
+    }
   }
 
 

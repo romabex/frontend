@@ -6,127 +6,69 @@
 rm -rf ./bitex/templates/*.soy.js
 rm -rf ./bitex/ui/*.soy.js
 
-if [ $# -eq 0 ]; then
-  LANG=en_US
-else
-  LANG=$1
-fi
-
-if [ $# -eq 1 ]; then
-  THEME=default
-else
-  THEME=$2
-fi
-
+#############################################
+# set defaults if they're not provided
+#############################################
+LANG=${LANG:=en_US}
+THEME=${THEME:=default}
 
 #############################################
 # compile soy templates
 #############################################
-echo "deposit_withdraw_button_group.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/deposit_withdraw_button_group.$THEME.soy
 
-echo "templates.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/templates/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/templates/templates.$THEME.soy
+SOY_TEMPLATES="
+               templates/templates
+               ui/deposit_withdraw_button_group
+               ui/bitex_datagrid
+               ui/bitex_listview
+               ui/order_book
+               ui/order_manager
+               ui/simple_chart
+               ui/withdraw_methods
+               ui/withdraw_method_editor
+               ui/advanced_order_entry
+               ui/simple_order_entry
+               ui/market_view_table
+               ui/change_password
+               ui/algorithm_selector
+               ui/algorithm_runner
+               ui/locked_balance_display
+               ui/remittance_box
+               ui/api_key_data_entry
+               ui/dialog
+               ui/withdraw_request_data_entry
+               ui/deposit_list
+               ui/line_of_credit_table
+               view/line_of_credit
+               ui/card_data_entry
+               ui/withdraw_list
+               ui/two_factor
+               ui/webcam_qr
+               view/profile
+               view/side_bar
+               view/withdraw
+"
 
-echo "bitex_datagrid.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/bitex_datagrid.$THEME.soy
-
-echo "bitex_listview.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/bitex_listview.$THEME.soy
-
-echo "order_book.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/order_book.$THEME.soy
-
-echo "simple_chart.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/simple_chart.$THEME.soy
-
-echo "withdraw_methods.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/withdraw_methods.$THEME.soy
-
-echo "withdraw_method_editor.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/withdraw_method_editor.$THEME.soy
-
-echo "advanced_order_entry.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/advanced_order_entry.$THEME.soy
-
-echo "simple_order_entry.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/simple_order_entry.$THEME.soy
-
-echo "market_view_table.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/market_view_table.$THEME.soy
-
-echo "change_password.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/change_password.$THEME.soy
-
-echo "algorithm_selector.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/algorithm_selector.$THEME.soy
-
-echo "algorithm_runner.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/algorithm_runner.$THEME.soy
-
-echo "locked_balance_display.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/locked_balance_display.$THEME.soy
-
-echo "remittance_box.soy"
-java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
-  --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
-  --outputPathFormat  './bitex/ui/{INPUT_FILE_NAME_NO_EXT}.soy.js' \
-  ./bitex/ui/remittance_box.$THEME.soy
+for template in $SOY_TEMPLATES ; do 
+    echo -n "$template.$THEME.soy -> "
+    java -jar ./tools/SoyToJsSrcCompiler.jar --bidiGlobalDir 1 --shouldGenerateGoogMsgDefs \
+      --shouldProvideRequireSoyNamespaces --codeStyle concat --cssHandlingScheme GOOG  \
+      --outputPathFormat  "./bitex/${template}.soy.js" \
+      ./bitex/$template.$THEME.soy
+    echo "$template.soy.js"
+done
 
 
 echo "done with soy templates"
 
-# BlinkTrade Application 
+# BlinkTrade Application - en_US
 python ./closure-library/closure/bin/build/closurebuilder.py  \
   --root=./closure-library/ \
   --root=./closure-bootstrap/javascript/ \
   --root=./scottlogic/ \
   --root=./uniform/ \
+  --root=./libphonenumber/i18n/phonenumbers/ \
+  --root=./expression_evaluator/ \
   --root=./bitex \
   --namespace=bitex.app.BlinkTrade \
   --output_mode=compiled \
@@ -143,10 +85,10 @@ python ./closure-library/closure/bin/build/closurebuilder.py  \
   --compiler_flags="--externs=./externs/parsley.js" \
   --compiler_flags="--externs=./externs/jquerymobile-1.4.3.js" \
   --compiler_flags="--externs=./externs/sticky.js" \
+  --compiler_flags="--externs=./externs/socket.io.js" \
+  --compiler_flags="--externs=./externs/w3c_rtc.js" \
   --compiler_flags="--externs=./externs/facebook_javascript_sdk.js" \
-  --compiler_flags="--debug=TRUE" \
-  --compiler_flags="--formatting=PRETTY_PRINT" \
-  --compiler_flags="--formatting=PRINT_INPUT_DELIMITER" \
+  --compiler_flags="--externs=./externs/qrcode.js" \
   --compiler_flags="--translations_file=./translations/$LANG.xtb.xml" \
    > ../assets/js/bitex_app_blink_trade.compiled.$LANG.$THEME.js
 
